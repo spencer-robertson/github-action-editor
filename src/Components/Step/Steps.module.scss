@@ -1,0 +1,119 @@
+@import "../../common";
+
+.stepsContainer {
+	margin: 10px;
+	display: flex;
+	flex-direction: column;
+
+	.addStepButton {
+		color: white !important;
+		height: 30px;
+		margin-top: 5px;
+		cursor: pointer;
+	}
+
+	.step {
+		margin: 5px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		.name {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			line-height: 20px;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
+				Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+		}
+
+		.settingButton {
+			min-height: 20px;
+			min-width: 20px;
+			height: 20px;
+			width: 20px;
+			transition: 0.2s;
+			color: $colorText;
+		}
+		.settingButton:hover {
+			color: $colorTextLight;
+		}
+	}
+}
+
+.container {
+	overflow: none;
+	height: 100%;
+	display: flex;
+	flex-direction: row;
+	gap: 30px;
+
+	.sidebar {
+		flex: 20%;
+	}
+
+	.main {
+		flex: 80%;
+		overflow: none;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+
+		.header {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+		}
+		> h1 {
+			margin: 10px;
+		}
+
+		.settingsContainer {
+			overflow-y: scroll;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			&::-webkit-scrollbar {
+				display: unset;
+				width: 5px;
+				height: 5px;
+			}
+
+			&::-webkit-scrollbar-thumb {
+				border-radius: 5px;
+				box-shadow: inset 0 0 3px 3px grey;
+			}
+		}
+		.saveButton {
+			backface-visibility: hidden;
+			background-color: #405cf5;
+			border-radius: 6px;
+			border-width: 0;
+			box-shadow: rgba(50, 50, 93, 0.1) 0 0 0 1px inset,
+				rgba(50, 50, 93, 0.1) 0 2px 5px 0, rgba(0, 0, 0, 0.07) 0 1px 1px 0;
+			box-sizing: border-box;
+			font-family: -apple-system, system-ui, "Segoe UI", Roboto,
+				"Helvetica Neue", Ubuntu, sans-serif;
+			font-size: 100%;
+			height: 44px;
+			padding: 0 25px;
+			cursor: pointer;
+			margin: 10px;
+			color: white !important;
+		}
+
+		.saveButton:hover {
+			background-color: #2a4ed4;
+		}
+
+		.saveButton:disabled {
+			cursor: default;
+		}
+
+		.saveButton:active {
+			box-shadow: rgba(50, 50, 93, 0.1) 0 0 0 1px inset,
+				rgba(50, 50, 93, 0.2) 0 6px 15px 0, rgba(0, 0, 0, 0.1) 0 2px 2px 0,
+				rgba(50, 151, 211, 0.3) 0 0 0 4px;
+		}
+	}
+}

@@ -1,0 +1,14 @@
+{
+	// See http://go.microsoft.com/fwlink/?LinkId=827846
+	// for the documentation about the extensions.json format
+	"recommendations": [
+		// Code auto formatting
+		"esbenp.prettier-vscode",
+
+		// ESLint
+		"dbaeumer.vscode-eslint",
+
+		// Code Spell Checker
+		"streetsidesoftware.code-spell-checker"
+	]
+}

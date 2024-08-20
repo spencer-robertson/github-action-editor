@@ -1,0 +1,32 @@
+name: Build Github actions editor
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch: null
+permissions:
+  id-token: write
+  contents: write
+  actions: write
+  packages: read
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout3
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+      - name: Install dependencies
+        run: npm ci
+      - name: Build VSCode extension
+        run: npm run vscode
+      - name: Publish VSCode extension
+        run: |
+          cd VSCodeExtension
+          npx vsce publish
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}

@@ -1,0 +1,15 @@
+.vscode/**
+.vscode-test/**
+out/test/**
+src/**
+.gitignore
+.yarnrc
+vsc-extension-quickstart.md
+**/tsconfig.json
+**/.eslintrc.json
+**/*.map
+**/*.ts
+
+# We prevent the GithubActionEditorBuild folder to be part of the `.vsix`; see also
+# in `tsconfig.json`, where we prevent this folder to be part of the build process
+GithubActionEditorBuild

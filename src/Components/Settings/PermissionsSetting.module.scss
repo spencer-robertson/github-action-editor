@@ -1,0 +1,62 @@
+.container {
+	display: flex;
+	justify-content: space-between;
+	margin: 20px;
+	align-items: center;
+	gap: 50px;
+
+	@media only screen and (max-width: 900px) {
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+
+	.permissionNameContainer {
+		display: flex;
+		gap: 5px;
+		// flex-direction: column;
+
+		.permissionName {
+			font-size: large;
+			font-weight: bold;
+			text-align: left;
+		}
+
+		.permissionDetails {
+			font-size: 13px;
+			font-style: italic;
+		}
+	}
+
+	.select {
+		padding: 5px;
+		background-color: red;
+
+		&.read {
+			background-color: orange;
+		}
+
+		&.write {
+			background-color: green;
+		}
+		.none {
+			background-color: red;
+		}
+
+		.read {
+			background-color: orange;
+		}
+
+		.write {
+			background-color: green;
+		}
+	}
+
+	.select-items {
+		position: absolute;
+		background-color: DodgerBlue;
+		top: 100%;
+		left: 0;
+		right: 0;
+		z-index: 99;
+	}
+}

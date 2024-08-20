@@ -1,0 +1,388 @@
+/*************************************************
+ * CSS Guide Lines
+ *  • Avoid CSS-in-JS to position elements; mixing the positioning of elements
+ *    in SCSS and CSS-in-JS makes maintenance harder; more generally, avoid putting rules
+ *    for the same component in SCSS and CSS-in-JS if they can all be at the same place
+ *  • box-shadow instead of border, you should use in priority
+ *    (as it doesn't change the size of the element)
+ *  • Unreachable code (unused CSS classes) and dead code (CSS rules
+ *    that do nothing), you should search and destroy before PR
+ *  • flex, you will love
+ *  • float, you will hate
+ *  • All the predefined stuff present in this file, you should use in priority;
+ *    hard coding a color, length, font-size, duration, etc. should raise an alarm
+ *    in your head: make sure that a common constant cannot be used instead
+ *  • camelCase, you should name your classes with
+ *  • !important... what I mean, you know
+ *    (ok, when using a components library, it's sometimes necessary)
+ *  • Copy-paste of code blocks, you should avoid (create new class and cascade them)
+ *  • With hierarchy, you should organise your classes (SCSS style)
+ *  • The more precise and specific you can when targeting element, you should be
+ *    (use &, >, :nth-child(), etc. to select only the element you want)
+ *  • Define the same property multiple times in one block, you shall not do;
+ *    (example, do not put `padding: ...` followed by another `padding: ...` or `padding-left: ...`)
+ *  • Group CSS properties by types, following a concentric path: start at the outer edge
+ *    of the box model and move inward. No need to include blank lines between groups of properties
+ *    in the same block. More info: https://rhodesmill.org/brandon/2011/concentric-css/
+ *
+ * Note about specificity when working with the UI library's components:
+ *  • Giving the possibility to provide a classname to these component wasn't a great idea,
+ *    because we can't ensure that the given classname will land after the component's one
+ *    in the bundle's CSS.
+ *    A way to ensure that the given classname will have more priority over the component's
+ *    one, is to make it more specific, by doubling its name in the SCSS:
+ *    `.customButtonColor.customButtonColor`
+ *   It is best to not use the possibility of giving classnames to components, and wrap them,
+ *   for instance, inside a `div` with its own classname.
+ *************************************************/
+
+/*************************************************
+ * Font Stacks
+ *************************************************/
+
+$RobotoLight: Roboto-Light, Arial;
+$RobotoRegular: Roboto-Regular, Arial;
+$RobotoSemiBold: Roboto-SemiBold, Arial;
+$RobotoBold: Roboto-Bold, Arial;
+
+/*************************************************
+ * Font Sizes
+ *************************************************/
+
+$fontSize2XS: var(--fontSize2XS, 10px);
+$fontSizeXS: var(--fontSizeXS, 12px);
+$fontSizeS: var(--fontSizeS, 14px);
+$fontSizeM: var(--fontSizeM, 16px);
+$fontSizeL: var(--fontSizeL, 18px);
+$fontSizeXL: var(--fontSizeXL, 20px);
+$fontSize2XL: var(--fontSize2XL, 24px);
+$fontSize3XL: var(--fontSize3XL, 30px);
+$fontSize4XL: var(--fontSize4XL, 36px);
+$fontSize5XL: var(--fontSize5XL, 48px);
+$fontSize6XL: var(--fontSize6XL, 60px);
+$fontSize7XL: var(--fontSize7XL, 72px);
+
+$letterSpacingSmaller: 0.03em;
+$letterSpacing: 0.05em;
+$letterSpacingBigger: 0.1em;
+
+/*************************************************
+ * Screen sizes & Pages dimensions
+ *************************************************/
+
+$headerContentHeight: 52px;
+:root {
+	/**
+	 * Fun little issue with SCSS where calc will not parse brackets
+	 * that are placed within calc correctly yet defining them as a
+	 * CSS Variable allows it to work
+	 */
+	--safeAreaInsetTop: env(safe-area-inset-top);
+	--safeHeaderHeight: calc(#{$headerContentHeight} + env(safe-area-inset-top));
+}
+$headerHeight: var(--safeHeaderHeight, #{$headerContentHeight});
+$footerHeight: 68px;
+$maxScreenForMobile: 480px;
+$maxLimitedViewWidth: 1064px;
+
+$maxMobileWidth: 1024px;
+
+:export {
+	headerContentHeight: $headerContentHeight;
+	headerHeight: $headerHeight;
+	maxScreenForMobile: $maxScreenForMobile;
+	maxMobileWidth: $maxMobileWidth;
+}
+
+/*************************************************
+ * Margins
+ *************************************************/
+
+// The base margin across the app is `$m16`; use this one between components, etc.
+// use `$m12` and `$m24` with parsimony;
+// this set is kept restricted on purpose
+
+$m2: 2px;
+$m4: 4px;
+$m8: 8px;
+$m12: 12px;
+$m16: 16px;
+$m24: 24px;
+$m32: 32px;
+
+:export {
+	m2: $m2;
+	m4: $m4;
+	m8: $m8;
+	m12: $m12;
+	m16: $m16;
+	m24: $m24;
+	m32: $m32;
+}
+
+/*************************************************
+ * Icon Sizes for Feather Icons
+ *************************************************/
+
+$iconSize: 24;
+$iconSizeField: 36;
+
+:export {
+	iconSize: $iconSize;
+	iconSizeField: $iconSizeField;
+}
+
+/*************************************************
+ * Colors
+ *************************************************/
+
+/* Presets:
+	Light Theme:
+		colorBackground: "#f1f2f3",
+		colorForeground: "#fff",
+		colorText: "#555",
+		colorTextLight: "#555a",
+		colorInvalid: "#d23",
+		colorInvalidLight: "#d23a",
+		colorValid: "#0b7",
+		colorValidLight: "#0b7a",
+		colorActive: "#27e",
+		colorActiveLight: "#27ea"
+		colorWarning: "#e90"
+		colorWarningLight: "#e90a"
+
+	Dark Theme:
+		colorBackground: "#21252b",
+		colorForeground: "#282c34",
+		colorText: "#abb2bf",
+		colorTextLight: "#abb2bfaa",
+		colorInvalid: "#e06c75",
+		colorInvalidLight: "#e06c75aa",
+		colorValid: "#64dc96",
+		colorValidLight: "#64dc96aa",
+		colorActive: "#61afef",
+		colorActiveLight: "#61afefaa"
+		colorWarning: "#e5c07b"
+		colorWarningLight: "#e5c07baa"
+*/
+
+$colorCompanyPrimary: var(--colorCompanyPrimary, #37474f);
+$colorBackground: var(--colorBackground, #f1f2f3);
+$colorForeground: var(--colorForeground, #fff);
+$colorForegroundSelected: var(--colorForegroundSelected, #fafafa);
+
+$colorText: var(--colorText, #555);
+$colorTextLight: var(--colorTextLight, #555c);
+// Will have to go. Please stop adding colours (use @if light/dark)
+$colorTextSemiDark: var(--colorTextLight, #757575);
+// Will have to go. Please stop adding colours (use @if light/dark)
+$colorTextDark: var(--colorTextLight, #424242);
+$colorInvalid: var(--colorInvalid, #d23);
+$colorInvalidLight: var(--colorInvalidLight, #d23a);
+// Will have to go. Please stop adding colours (use @if light/dark)
+$colorFaintInvalid: var(--colorFaintInvalid, #ffcdd2);
+$colorValid: var(--colorValid, #0b7);
+$colorValidLight: var(--colorValidLight, #0b7a);
+// Will have to go. Please stop adding colours (use @if light/dark)
+$colorFaintGreen: var(--colorFaintGreen, #c8e6c9);
+$colorActive: var(--colorActive, #27e);
+$colorActiveLight: var(--colorActiveLight, #27ea);
+// Will have to go. Please stop adding colours (use @if light/dark)
+$colorFaintBlue: var(--colorFaintBlue, #b3e5fc);
+$colorWarning: var(--colorWarning, #e90);
+$colorWarningLight: var(--colorWarningLight, #e90a);
+// Will have to go. Please stop adding colours (use @if light/dark)
+$colorFaintWarning: var(--colorFaintWarning, #fff9c4);
+
+:export {
+	colorBackground: $colorBackground;
+	colorForeground: $colorForeground;
+	colorText: $colorText;
+	colorTextLight: $colorTextLight;
+	colorInvalid: $colorInvalid;
+	colorInvalidLight: $colorInvalidLight;
+	colorValid: $colorValid;
+	colorValidLight: $colorValidLight;
+	colorActive: $colorActive;
+	colorActiveLight: $colorActiveLight;
+	colorWarning: $colorWarning;
+	colorWarningLight: $colorWarningLight;
+}
+
+/*************************************************
+ * Borders
+ *************************************************/
+
+// We use box-shadows instead of borders:
+//   - One thing to handle instead of two;
+//   - Box-shadows width is not taken into account: adding or
+//     removing them doesn't change the size of the element.
+
+$borderRadius: 3px;
+
+/*************************************************
+ * Box Shadows
+ *************************************************/
+
+$shadowLight: 0 0 0 1px;
+$shadowFocus: 0 0 5px 1px;
+$shadowStrong: 0 0 7px 1px;
+
+$shadowInvalid: $shadowLight $colorInvalidLight;
+$shadowInvalidFocus: $shadowFocus $colorInvalid;
+$shadowInvalidStrong: $shadowStrong $colorInvalid;
+$shadowValid: $shadowLight $colorValidLight;
+$shadowValidFocus: $shadowFocus $colorValid;
+$shadowActive: $shadowLight $colorActiveLight;
+$shadowActiveFocus: $shadowFocus $colorActive;
+$shadowWarning: $shadowLight $colorWarningLight;
+$shadowWarningFocus: $shadowFocus $colorWarning;
+
+/*************************************************
+ * Transitions
+ *************************************************/
+
+$transitionDuration: 0.2;
+$transition: #{$transitionDuration}s ease;
+
+:export {
+	transitionDuration: $transitionDuration;
+}
+
+/*************************************************
+ * Animations
+ *************************************************/
+
+$invalidCatchEye: invalidCatchEye 1.5s ease infinite;
+
+@keyframes invalidCatchEye {
+	50% {
+		box-shadow: $shadowInvalidStrong;
+	}
+}
+
+$flashDuration: 3.5s;
+$flash: flash $flashDuration ease;
+
+@keyframes flash {
+	0% {
+		background-color: $colorWarning;
+		color: $colorBackground;
+	}
+	30% {
+		background-color: $colorWarning;
+		color: $colorBackground;
+	}
+}
+
+:export {
+	flashDuration: $flashDuration;
+}
+
+/*************************************************
+ * Z-Indexes
+ *************************************************/
+
+// Maybe one day prettier-ignore-start and prettier-ignore-end will be supported for SCSS
+// prettier-ignore
+$zIndexPicker:        100;
+// prettier-ignore
+$zIndexHeader:        1000;
+// prettier-ignore
+$zIndexPopup:         10000;
+// prettier-ignore
+$zIndexNotifications: 100000;
+// prettier-ignore
+$zIndexFileUploader:  1000000;
+
+:export {
+	zIndexPopup: $zIndexPopup;
+}
+
+/*************************************************
+ * Styles
+ *************************************************/
+
+* {
+	box-sizing: border-box;
+	-ms-overflow-style: none;
+	color: $colorText !important;
+}
+
+a {
+	color: $colorText;
+}
+
+html {
+	-ms-touch-action: manipulation;
+	touch-action: manipulation;
+}
+
+body {
+	min-height: 100vh;
+	margin: 0;
+	padding: 0;
+	background-color: $colorBackground;
+	font-family: $RobotoRegular;
+	font-size: $fontSizeM;
+	letter-spacing: $letterSpacingSmaller;
+	color: $colorText;
+	text-rendering: optimizeLegibility;
+	font-smooth: always;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	transition: background-color $transition;
+}
+
+// #root {
+// Ensure that we are never going to have an horizontal scroll
+// Needed to be removed to allow a sticky header in the request page
+// overflow-x: hidden;
+// }
+
+// These elements don't inherit font properties by default
+input,
+textarea,
+select,
+button,
+a {
+	opacity: 1; // Prevents `select`s to be a bit transparent in Chrome when readonly
+	appearance: none; // Don't try to make controls look like native ones... please
+	margin: 0;
+	border: none;
+	padding: 0;
+	font-family: inherit;
+	font-size: inherit;
+	letter-spacing: inherit;
+	color: inherit;
+	outline: none !important; // Don't outline the control when it has focus (we do it ourself); `!important` is for Templex
+}
+
+::placeholder {
+	font-size: $fontSizeS;
+	color: $colorTextLight;
+	transition: color $transition;
+}
+
+::-webkit-scrollbar {
+	display: none;
+}
+
+@mixin customScrollbar($color: $colorTextLight) {
+	&::-webkit-scrollbar {
+		display: unset;
+		width: 5px;
+		height: 5px;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		border-radius: 5px;
+		box-shadow: inset 0 0 3px 3px $color;
+	}
+}
+
+@media print {
+	.noPrint {
+		display: none;
+	}
+}

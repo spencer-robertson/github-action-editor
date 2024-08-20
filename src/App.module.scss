@@ -1,0 +1,139 @@
+@import "common";
+body {
+	overflow: hidden;
+}
+
+.footer {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	margin: 20px;
+	display: flex;
+
+	.controls {
+		background-color: $colorForeground;
+		border-radius: 5px;
+		display: flex;
+		cursor: pointer;
+		margin: 5px;
+
+		.minimize {
+			margin: 5px;
+			&.disabled {
+				color: lightgrey;
+			}
+		}
+
+		&.disabled {
+			cursor: not-allowed;
+		}
+	}
+	.controls:hover {
+		box-shadow: rgba(149, 157, 165, 0.2) 0px 4px 12px;
+	}
+}
+
+.appContainer {
+	// margin: auto 20px auto 20px;
+	max-width: 400px;
+	display: flex;
+	flex-direction: column;
+
+	.appContainerSpacer {
+		flex: 40%;
+	}
+
+	.jobSpacer {
+		flex: 60%;
+	}
+	-moz-transform: scale(var(--zoom, 1), var(--zoom, 1));
+	zoom: var(--zoom, 1);
+	zoom: calc(var(--zoom, 1) * 100) + "%";
+}
+.container {
+	display: flex;
+
+	cursor: grab;
+
+	height: 3000px;
+	width: 3000px;
+	left: calc((3000px - 100vw) / -2);
+	top: calc((3000px - 100vh) / -2);
+	position: relative;
+	justify-content: center;
+	transform: translate(var(--x, 0), var(--y, 0));
+}
+
+.overlay {
+	height: 100vh;
+	width: 100vw;
+	position: absolute;
+	background-color: rgba(0, 0, 0, 0.2);
+	z-index: 1;
+}
+
+.header {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	z-index: 2;
+
+	background-image: linear-gradient(
+		to bottom,
+		$colorBackground 70%,
+		rgba(255, 0, 0, 0)
+	);
+
+	.title {
+		font-size: 40px;
+		margin: 10px;
+	}
+	.actions {
+		display: flex;
+		gap: 10px;
+		margin: 10px;
+	}
+}
+
+.modal.modal {
+	background-color: $colorForeground;
+}
+
+.saveButton.saveButton {
+	color: white !important;
+}
+
+.snack.snack {
+	width: "100%";
+
+	> div {
+		color: white !important;
+
+		> svg {
+			> path {
+				color: white !important;
+			}
+		}
+		> button {
+			> svg {
+				> path {
+					color: white !important;
+				}
+			}
+		}
+	}
+}
+
+.unNeededContainer {
+	background-color: $colorForeground;
+	border: none;
+	border-radius: 10px;
+	width: 350px;
+}
+
+.edgeButton {
+	background-color: $colorBackground;
+}
