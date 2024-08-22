@@ -1128,7 +1128,7 @@ export interface Environment {
 	/**
 	 * The name of the environment configured in the repo.
 	 */
-	name: string;
+	name?: string;
 	/**
 	 * A deployment URL
 	 */

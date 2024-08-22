@@ -6,125 +6,117 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { useState } from "react";
 
 interface ObjectSettingProps {
 	value?: Record<string, string | number | boolean>;
 	name: string;
+	onChange?: (
+		value: Record<string, string | number | boolean> | undefined,
+	) => void;
 }
 
-export const ObjectSetting = forwardRef(
-	({ value, name }: ObjectSettingProps, ref) => {
-		const [currentValue, setCurrentValue] = useState(value);
+export const ObjectSetting = ({
+	value,
+	name,
+	onChange,
+}: ObjectSettingProps) => {
+	const [nameValue, setNameValue] = useState<string>();
+	const [objectValue, setObjectValue] = useState<string>();
 
-		const [nameValue, setNameValue] = useState<string>();
-		const [objectValue, setObjectValue] = useState<string>();
+	const onRemove = (name: string) => {
+		const { [name]: _, ...rest } = value || {};
+		onChange?.(rest);
+	};
 
-		useImperativeHandle(ref, () => ({ getValue }));
-		const getValue = () => currentValue;
+	const onChangeValue = (
+		newObjectValue: Record<string, string>,
+		original?: string,
+	) => {
+		// set value to new value with test and remove original key from value
+		if (original) {
+			const { [original]: _, ...rest } = value || {};
 
-		const onRemove = (name: string) => {
-			setCurrentValue((prev) => {
-				const { [name]: _, ...rest } = prev || {};
-				return rest;
-			});
-		};
+			onChange?.({ ...rest, ...newObjectValue });
+		}
 
-		useEffect(() => {
-			setCurrentValue(value);
-		}, [value]);
+		onChange?.({ ...value, ...newObjectValue });
+	};
 
-		const onChange = (
-			newObjectValue: Record<string, string>,
-			original?: string,
-		) => {
-			// set value to new value with test and remove original key from value
-			setCurrentValue((prev) => {
-				if (original) {
-					const { [original]: _, ...rest } = prev || {};
-					return { ...rest, ...newObjectValue };
-				}
+	const onClick = () => {
+		if (!objectValue || !nameValue) return;
 
-				const { ...rest } = prev || {};
-				return { ...rest, ...newObjectValue };
-			});
-		};
+		const newObjectValue = { [nameValue]: objectValue };
 
-		const onClick = () => {
-			if (!objectValue || !nameValue) return;
+		if (name !== nameValue) {
+			onChangeValue(newObjectValue, name);
+		} else {
+			onChangeValue(newObjectValue);
+		}
 
-			const newObjectValue = { [nameValue]: objectValue };
+		setNameValue("");
+		setObjectValue("");
+	};
 
-			if (name !== nameValue) {
-				onChange(newObjectValue, name);
-			} else {
-				onChange(newObjectValue);
-			}
-
-			setNameValue("");
-			setObjectValue("");
-		};
-
-		return (
-			<Table aria-label="simple table">
-				<TableBody>
-					{Object.entries(currentValue || {}).map(([name, value]) => (
-						<TableRow key={name}>
-							<TableCell component="th" scope="row" width={"20%"}>
-								{name}
-							</TableCell>
-							<TableCell>{value}</TableCell>
-							<TableCell align="right">
-								<IconButton
-									edge="end"
-									aria-label="delete"
-									title="Delete"
-									onClick={() => onRemove(name)}
-								>
-									<DeleteIcon />
-								</IconButton>
-							</TableCell>
-						</TableRow>
-					))}
-					<TableRow key={"new"}>
+	return (
+		<Table aria-label="simple table">
+			<TableBody>
+				{Object.entries(value || {}).map(([name, newValue]) => (
+					<TableRow key={name}>
 						<TableCell component="th" scope="row" width={"20%"}>
-							<TextField
-								id="outlined-basic"
-								label="Name"
-								variant="standard"
-								onChange={(e) => {
-									setNameValue(e.target.value);
-								}}
-								value={nameValue}
-								fullWidth
-							/>
+							{name}
 						</TableCell>
-						<TableCell>
-							<TextField
-								id="outlined-basic"
-								label="Value"
-								variant="standard"
-								onChange={(e) => {
-									setObjectValue(e.target.value);
-								}}
-								value={objectValue}
-								fullWidth
-							/>
-						</TableCell>
+						<TableCell>{newValue}</TableCell>
 						<TableCell align="right">
 							<IconButton
 								edge="end"
-								aria-label="add"
-								title="Add"
-								disabled={!nameValue || !objectValue}
-								onClick={onClick}
+								aria-label="delete"
+								title="Delete"
+								onClick={() => onRemove(name)}
 							>
-								<AddIcon />
+								<DeleteIcon />
 							</IconButton>
 						</TableCell>
 					</TableRow>
-				</TableBody>
-			</Table>
-		);
-	},
-);
+				))}
+				<TableRow key={"new"}>
+					<TableCell component="th" scope="row" width={"20%"}>
+						<TextField
+							id="outlined-basic"
+							label="Name"
+							variant="standard"
+							onChange={(e) => {
+								setNameValue(e.target.value);
+							}}
+							value={nameValue}
+							fullWidth
+						/>
+					</TableCell>
+					<TableCell>
+						<TextField
+							id="outlined-basic"
+							label="Value"
+							variant="standard"
+							onChange={(e) => {
+								setObjectValue(e.target.value);
+							}}
+							value={objectValue}
+							fullWidth
+						/>
+					</TableCell>
+					<TableCell align="right">
+						<IconButton
+							edge="end"
+							aria-label="add"
+							title="Add"
+							disabled={!nameValue || !objectValue}
+							onClick={onClick}
+						>
+							<AddIcon />
+						</IconButton>
+					</TableCell>
+				</TableRow>
+			</TableBody>
+		</Table>
+	);
+};

@@ -5,8 +5,19 @@ import CodeMirror from "@uiw/react-codemirror";
 import { basicSetup } from "codemirror";
 import { useState } from "react";
 import YAML from "yaml";
+import { NormalJob, Step } from "../../../types/workflowTypes";
 
-export const YamlEditor = ({ value, onChange }: any) => {
+type YamlEditorProps =
+	| {
+			value: NormalJob;
+			onChange: (value: NormalJob) => void;
+	  }
+	| {
+			value: Step;
+			onChange: (value: Step) => void;
+	  };
+
+export const YamlEditor = ({ value, onChange }: YamlEditorProps) => {
 	const [currentValue] = useState(value);
 	const yaml = new LanguageSupport(StreamLanguage.define(yamlMode.yaml));
 

@@ -8,9 +8,8 @@ import {
 	ToggleButton,
 	ToggleButtonGroup,
 } from "@mui/material";
-import { useContext, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { WorkflowContext } from "../../Contexts/WorkflowContext";
-import { SettingsRef } from "../../types";
 import { NormalJob } from "../../types/workflowTypes";
 import { ArrayComponent } from "../Settings/ArraySetting";
 import { BaseSetting } from "../Settings/BaseSetting";
@@ -34,21 +33,6 @@ interface JobSettingsProps {
 }
 
 export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
-	const nameRef = useRef<SettingsRef>(null);
-	const ifRef = useRef<SettingsRef>(null);
-	const timeoutRef = useRef<SettingsRef>(null);
-	const needsRef = useRef<SettingsRef>(null);
-	const runsOnRef = useRef<SettingsRef>(null);
-	const permissionsRef = useRef<SettingsRef>(null);
-	const outputsRef = useRef<SettingsRef>(null);
-	const continueOnErrorRef = useRef<SettingsRef>(null);
-	const envRef = useRef<SettingsRef>(null);
-	const environmentRef = useRef<SettingsRef>(null);
-	const concurrencyRef = useRef<SettingsRef>(null);
-	const usesRef = useRef<SettingsRef>(null);
-	const withRef = useRef<SettingsRef>(null);
-	const defaultsRef = useRef<SettingsRef>(null);
-
 	const { workflow, setWorkflow, setWorkflowChanged } =
 		useContext(WorkflowContext);
 	const [settingType, setSettingType] = useState("basic");
@@ -64,51 +48,11 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 			return;
 		}
 
-		const nameSetting = nameRef.current?.getValue();
-		const ifSetting = ifRef.current?.getValue();
-		const timeoutSetting = timeoutRef.current?.getValue();
-		const needsSetting = needsRef.current?.getValue();
-		const runsOnSetting = runsOnRef.current?.getValue();
-		const permissionsSetting = permissionsRef.current?.getValue();
-		const outputsSetting = outputsRef.current?.getValue();
-		const continueOnErrorSetting = continueOnErrorRef.current?.getValue();
-		const envSetting = envRef.current?.getValue();
-		const environmentSetting = environmentRef.current?.getValue();
-		const concurrencySetting = concurrencyRef.current?.getValue();
-		const usesSetting = usesRef.current?.getValue();
-		const withSetting = withRef.current?.getValue();
-		const defaultsSetting = defaultsRef.current?.getValue();
-
-		const currentJob = workflow.jobs[id];
-		const change = {
-			...currentJob,
-			name: nameSetting,
-			if: ifSetting,
-			"timeout-minutes": timeoutSetting,
-			needs: needsSetting && needsSetting.length > 0 ? needsSetting : undefined,
-			"runs-on": runsOnSetting,
-			permissions: permissionsSetting,
-			outputs: outputsSetting,
-			"continue-on-error": continueOnErrorSetting,
-			env: envSetting,
-			environment: environmentSetting,
-			concurrency:
-				concurrencySetting && Object.keys(concurrencySetting).length > 0
-					? concurrencySetting
-					: undefined,
-			uses: usesSetting,
-			with: withSetting,
-			defaults:
-				defaultsSetting && Object.keys(defaultsSetting).length > 0
-					? defaultsSetting
-					: undefined,
-		};
-
 		const newWorkflow = {
 			...workflow,
 			jobs: {
 				...workflow.jobs,
-				[id]: change,
+				[id]: currentJob,
 			},
 		};
 
@@ -118,9 +62,43 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 			...prev,
 			{
 				change: newWorkflow,
-				message: `${nameSetting} successfully updated`,
+				message: `${currentJob.name} successfully updated`,
 			},
 		]);
+	};
+
+	const removeJob = () => {
+		setWorkflow?.((prev) => {
+			if (!prev) {
+				return prev;
+			}
+
+			const { [id]: _, ...rest } = prev.jobs;
+
+			const newWorkflow = {
+				...prev,
+				jobs: { ...rest },
+			};
+
+			setWorkflowChanged?.((prev) => [
+				...prev,
+				{
+					change: newWorkflow,
+					message: `${currentJob.name} successfully removed`,
+				},
+			]);
+
+			return newWorkflow;
+		});
+
+		onClose();
+	};
+
+	const updateCurrentJob = (key: string, value: any) => {
+		setCurrentJob((prev) => ({
+			...prev,
+			[key]: value,
+		}));
 	};
 
 	const basicSettings = [
@@ -133,7 +111,11 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					settingDetails='Prevents a job from running unless a condition is met. You can use any supported context and expression to create a conditional. For more information on which contexts are supported in this key, see "Contexts."'
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<StringSetting ref={ifRef} value={currentJob["if"]} name="If" />
+					<StringSetting
+						value={currentJob["if"]}
+						name="If"
+						onChange={(value) => updateCurrentJob("if", value)}
+					/>
 				</BaseSetting>
 			),
 		},
@@ -147,8 +129,8 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
 					<NumberSetting
-						ref={timeoutRef}
 						value={currentJob["timeout-minutes"]}
+						onChange={(value) => updateCurrentJob("timeout-minutes", value)}
 					/>
 				</BaseSetting>
 			),
@@ -163,9 +145,9 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
 					<NeedsSetting
-						ref={needsRef}
 						value={currentJob.needs}
 						currentJob={id}
+						onChange={(value) => updateCurrentJob("needs", value)}
 					/>
 				</BaseSetting>
 			),
@@ -181,9 +163,9 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
 					<ArrayComponent
-						ref={runsOnRef}
 						value={currentJob["runs-on"]}
 						name="Runs on"
+						onChange={(value) => updateCurrentJob("runs-on", value)}
 					/>
 				</BaseSetting>
 			),
@@ -200,7 +182,11 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 "
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<StringSetting ref={usesRef} value={currentJob.uses} name="Uses" />
+					<StringSetting
+						value={currentJob.uses}
+						name="Uses"
+						onChange={(value) => updateCurrentJob("uses", value)}
+					/>
 				</BaseSetting>
 			),
 		},
@@ -214,8 +200,8 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
 					<BooleanSetting
-						ref={continueOnErrorRef}
 						value={currentJob["continue-on-error"]}
+						onChange={(value) => updateCurrentJob("continue-on-error", value)}
 					/>
 				</BaseSetting>
 			),
@@ -229,8 +215,8 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 			render: (hide: boolean) => (
 				<BaseSetting style={{ display: hide ? "inline-table" : "none" }}>
 					<PermissionsSetting
-						ref={permissionsRef}
 						value={currentJob.permissions}
+						onChange={(value) => updateCurrentJob("permissions", value)}
 					/>
 				</BaseSetting>
 			),
@@ -247,7 +233,11 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					settingDetails="When a job is used to call a reusable workflow, you can use with to provide a map of inputs that are passed to the called workflow. Any inputs that you pass must match the input specifications defined in the called workflow."
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<ObjectSetting ref={withRef} value={currentJob.with} name="With" />
+					<ObjectSetting
+						value={currentJob.with}
+						name="With"
+						onChange={(value) => updateCurrentJob("with", value)}
+					/>
 				</BaseSetting>
 			),
 		},
@@ -260,9 +250,9 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 			render: (hide: boolean) => (
 				<BaseSetting style={{ display: hide ? "inline-table" : "none" }}>
 					<DefaultsSetting
-						ref={defaultsRef}
 						value={currentJob.defaults}
 						name="Defaults"
+						onChange={(value) => updateCurrentJob("defaults", value)}
 					/>
 				</BaseSetting>
 			),
@@ -293,7 +283,11 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					settingDetails="A map of variables that are available to all steps in the job. You can set variables for the entire workflow or an individual step. For more information, see env and jobs.<job_id>.steps[*].env."
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<ObjectSetting ref={envRef} value={currentJob.env} name="Env" />
+					<ObjectSetting
+						value={currentJob.env}
+						name="Env"
+						onChange={(value) => updateCurrentJob("env", value)}
+					/>
 				</BaseSetting>
 			),
 		},
@@ -310,8 +304,8 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
 					<EnvironmentSetting
-						ref={environmentRef}
 						value={currentJob["environment"]}
+						onChange={(value) => updateCurrentJob("environment", value)}
 					/>
 				</BaseSetting>
 			),
@@ -329,9 +323,9 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
 					<ObjectSetting
-						ref={outputsRef}
 						value={currentJob.outputs}
 						name="Outputs"
+						onChange={(value) => updateCurrentJob("outputs", value)}
 					/>
 				</BaseSetting>
 			),
@@ -349,8 +343,8 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
 					<ConcurrencySetting
-						ref={concurrencyRef}
 						value={currentJob["concurrency"]}
+						onChange={(value) => updateCurrentJob("concurrency", value)}
 					/>
 				</BaseSetting>
 			),
@@ -369,32 +363,7 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 		...concurrencySettings,
 	];
 
-	const removeJob = () => {
-		setWorkflow?.((prev) => {
-			if (!prev) {
-				return prev;
-			}
-
-			const { [id]: _, ...rest } = prev.jobs;
-
-			const newWorkflow = {
-				...prev,
-				jobs: { ...rest },
-			};
-
-			setWorkflowChanged?.((prev) => [
-				...prev,
-				{
-					change: newWorkflow,
-					message: `${currentJob.name} successfully removed`,
-				},
-			]);
-
-			return newWorkflow;
-		});
-
-		onClose();
-	};
+	const { steps: _, ...currentJobWithoutSteps } = currentJob;
 
 	return (
 		<div className={style.container} key={id}>
@@ -478,7 +447,10 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 			</div>
 			<div className={style.main}>
 				<div className={style.header}>
-					<NameSetting ref={nameRef} value={currentJob.name} />
+					<NameSetting
+						value={currentJob.name}
+						onChange={(value) => updateCurrentJob("name", value)}
+					/>
 					<IconButton
 						edge="start"
 						aria-label="settings"
@@ -502,15 +474,20 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 						<DeleteOutline />
 					</IconButton>
 				</div>
-				{yamlEditor ? (
-					<YamlEditor value={currentJob} onChange={setCurrentJob} />
-				) : (
-					<div className={style.settingsContainer}>
-						{allSettings.map((setting) =>
+				<div className={style.settingsContainer}>
+					{yamlEditor ? (
+						<YamlEditor
+							value={currentJobWithoutSteps as NormalJob}
+							onChange={(value: any) =>
+								setCurrentJob({ ...value, steps: job.steps })
+							}
+						/>
+					) : (
+						allSettings.map((setting) =>
 							setting?.render(settingType === setting.id),
-						)}
-					</div>
-				)}
+						)
+					)}
+				</div>
 				<button className={style.saveButton} onClick={onClick}>
 					Save
 				</button>

@@ -1,31 +1,23 @@
 import Input from "@mui/material/Input";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import style from "./NameSetting.module.scss";
 
 interface NameSettingProps {
 	value?: string;
+	onChange?: (value: string | undefined) => void;
 }
 
-export const NameSetting = forwardRef(({ value }: NameSettingProps, ref) => {
-	const [currentValue, setCurrentValue] = useState(value);
-
-	useImperativeHandle(ref, () => ({ getValue }));
-	const getValue = () => currentValue;
-
-	useEffect(() => {
-		setCurrentValue(value);
-	}, [value]);
-
+export const NameSetting = ({ value, onChange }: NameSettingProps) => {
+	console.log("value:", value);
 	return (
 		<div className={style.title}>
 			<Input
-				defaultValue={currentValue}
+				value={value}
 				fullWidth
 				style={{
 					fontSize: 20,
 				}}
-				onChange={(e) => setCurrentValue(e.target.value)}
+				onChange={(e) => onChange?.(e.target.value)}
 			/>
 		</div>
 	);
-});
+};

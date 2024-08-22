@@ -5,12 +5,12 @@ import {
 	ListItem,
 	ListItemButton,
 	ListItemText,
+	ToggleButton,
+	ToggleButtonGroup,
 } from "@mui/material";
-import * as R from "ramda";
-import { useContext, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { vscode } from "../../App";
 import { WorkflowContext } from "../../Contexts/WorkflowContext";
-import { SettingsRef } from "../../types";
 import { Step } from "../../types/workflowTypes";
 import { getCurrentStep } from "../../utils";
 import { BaseSetting } from "../Settings/BaseSetting";
@@ -19,6 +19,7 @@ import { NameSetting } from "../Settings/NameSetting";
 import { NumberSetting } from "../Settings/NumberSetting";
 import { ObjectSetting } from "../Settings/ObjectSetting";
 import { StringSetting } from "../Settings/StringSetting";
+import YamlEditor from "../UI/YAMLEditor";
 import style from "./Steps.module.scss";
 
 interface StepSettingsProps {
@@ -35,18 +36,8 @@ export const StepSettings = ({
 	onClose,
 }: StepSettingsProps) => {
 	const [settingType, setSettingType] = useState("basic");
-
-	const nameRef = useRef<SettingsRef>(null);
-	const idRef = useRef<SettingsRef>(null);
-	const ifRef = useRef<SettingsRef>(null);
-	const usesRef = useRef<SettingsRef>(null);
-	const runRef = useRef<SettingsRef>(null);
-	const shellRef = useRef<SettingsRef>(null);
-	const withRef = useRef<SettingsRef>(null);
-	const envRef = useRef<SettingsRef>(null);
-	const continueOnErrorRef = useRef<SettingsRef>(null);
-	const workingDirectoryRef = useRef<SettingsRef>(null);
-	const timeoutRef = useRef<SettingsRef>(null);
+	const [currentStep, setCurrentStep] = useState(step);
+	const [yamlEditor, setYamlEditor] = useState(false);
 
 	const { workflow, setWorkflow, setWorkflowChanged } =
 		useContext(WorkflowContext);
@@ -55,202 +46,26 @@ export const StepSettings = ({
 		return <></>;
 	}
 
-	const basicSettings = [
-		{
-			id: "basic",
-			name: "id",
-			render: (hide: boolean) => (
-				<BaseSetting
-					settingName="id"
-					settingDetails='A unique identifier for the step. You can use the id to reference the step in contexts. For more information, see "Contexts."'
-					style={{ display: hide ? "inline-table" : "none" }}
-				>
-					<StringSetting ref={idRef} value={step["id"]} name="id" />
-				</BaseSetting>
-			),
-		},
-		{
-			id: "basic",
-			name: "If",
-			render: (hide: boolean) => (
-				<BaseSetting
-					settingName="If"
-					settingDetails='Prevents a step from running unless a condition is met. You can use any supported context and expression to create a conditional. For more information on which contexts are supported in this key, see "Contexts."'
-					style={{ display: hide ? "inline-table" : "none" }}
-				>
-					<StringSetting ref={ifRef} value={step["if"]} name="If" />
-				</BaseSetting>
-			),
-		},
-		{
-			id: "basic",
-			name: "Run",
-			render: (hide: boolean) => (
-				<BaseSetting
-					settingName="Run"
-					settingDetails="Runs command-line programs that do not exceed 21,000 characters using the operating systems shell. If you do not provide a name, the step name will default to the text specified in the run command."
-					style={{ display: hide ? "inline-table" : "none" }}
-				>
-					<StringSetting
-						ref={runRef}
-						value={step["run"]}
-						name="Run"
-						multiline
-					/>
-				</BaseSetting>
-			),
-		},
-		{
-			id: "basic",
-			name: "Timeout",
-			render: (hide: boolean) => (
-				<BaseSetting
-					settingName="Timeout"
-					settingDetails="The maximum number of minutes to let a step run before GitHub automatically cancels it. Default: 360"
-					style={{ display: hide ? "inline-table" : "none" }}
-				>
-					<NumberSetting ref={timeoutRef} value={step["timeout-minutes"]} />
-				</BaseSetting>
-			),
-		},
-		{
-			id: "basic",
-			name: "Uses",
-			render: (hide: boolean) => (
-				<BaseSetting
-					settingName="Uses"
-					settingDetails="Selects an action to run as part of a step in your job. An action is a reusable unit of code. You can use an action defined in the same repository as the workflow, a public repository, or in a published Docker container image."
-					style={{ display: hide ? "inline-table" : "none" }}
-				>
-					<StringSetting ref={usesRef} value={step.uses} name="Uses" />
-				</BaseSetting>
-			),
-		},
-		{
-			id: "basic",
-			name: "Shell",
-			render: (hide: boolean) => (
-				<BaseSetting
-					settingName="Shell"
-					settingDetails="You can override the default shell settings in the runner's operating system and the job's default using the shell keyword."
-					style={{ display: hide ? "inline-table" : "none" }}
-				>
-					<StringSetting ref={shellRef} value={step.shell} name="Shell" />
-				</BaseSetting>
-			),
-		},
-		{
-			id: "basic",
-			name: "Working directory",
-			render: (hide: boolean) => (
-				<BaseSetting
-					settingName="Working directory"
-					settingDetails="Specify the working directory of where to run the command."
-					style={{ display: hide ? "inline-table" : "none" }}
-				>
-					<StringSetting
-						ref={workingDirectoryRef}
-						value={step["working-directory"]}
-						name="Working directory"
-					/>
-				</BaseSetting>
-			),
-		},
-		{
-			id: "basic",
-			name: "Continue on error",
-			render: (hide: boolean) => (
-				<BaseSetting
-					settingName="Continue on error"
-					settingDetails="Prevents a job from failing when a step fails. Set to true to allow a job to pass when this step fails."
-					style={{ display: hide ? "inline-table" : "none" }}
-				>
-					<BooleanSetting
-						ref={continueOnErrorRef}
-						value={step["continue-on-error"]}
-					/>
-				</BaseSetting>
-			),
-		},
-	];
-
-	const withSettings = [
-		{
-			id: "with",
-			name: "With",
-			render: (hide: boolean) => (
-				<BaseSetting
-					settingName="With"
-					settingDetails="A map of the input parameters defined by the action. Each input parameter is a key/value pair. Input parameters are set as environment variables. The variable is prefixed with INPUT_ and converted to upper case."
-					style={{ display: hide ? "inline-table" : "none" }}
-				>
-					<ObjectSetting ref={withRef} value={step["with"]} name="With" />
-				</BaseSetting>
-			),
-		},
-	];
-
-	const envSettings = [
-		{
-			id: "env",
-			name: "Env",
-			render: (hide: boolean) => (
-				<BaseSetting
-					settingName="Env"
-					settingDetails="Sets variables for steps to use in the runner environment"
-					style={{ display: hide ? "inline-table" : "none" }}
-				>
-					<ObjectSetting ref={envRef} value={step["env"]} name="Env" />
-				</BaseSetting>
-			),
-		},
-	];
-
 	const onClick = () => {
 		if (!workflow) {
 			return;
 		}
 
-		const nameSetting = nameRef.current?.getValue();
-		const idSetting = idRef.current?.getValue();
-		const ifSetting = ifRef.current?.getValue();
-		const usesSetting = usesRef.current?.getValue();
-		const runSetting = runRef.current?.getValue();
-		const shellSetting = shellRef.current?.getValue();
-		const withSetting = withRef.current?.getValue();
-		const envSetting = envRef.current?.getValue();
-		const continueOnErrorSetting = continueOnErrorRef.current?.getValue();
-		const workingDirectorySetting = workingDirectoryRef.current?.getValue();
-		const timeoutSetting = timeoutRef.current?.getValue();
-
-		const newWorkflow = R.clone(workflow);
-
-		const currentJob = newWorkflow.jobs[jobId];
-
-		const currentStep = currentJob.steps?.findIndex((step) => {
-			return getCurrentStep(step, id);
-		});
-
-		if (currentStep === undefined || !newWorkflow.jobs[jobId]?.steps) {
-			return;
-		}
-
-		const change = {
-			...workflow.jobs[jobId].steps?.[currentStep],
-			name: nameSetting,
-			id: idSetting,
-			if: ifSetting,
-			uses: usesSetting,
-			run: runSetting,
-			shell: shellSetting,
-			with: withSetting,
-			env: envSetting,
-			"working-directory": workingDirectorySetting,
-			"continue-on-error": continueOnErrorSetting,
-			"timeout-minutes": timeoutSetting,
+		const newWorkflow = {
+			...workflow,
+			jobs: {
+				...workflow.jobs,
+				[jobId]: {
+					...workflow.jobs[jobId],
+					steps: workflow.jobs[jobId].steps?.map((step) => {
+						if (getCurrentStep(step, id)) {
+							return currentStep;
+						}
+						return step;
+					}),
+				},
+			},
 		};
-
-		(newWorkflow.jobs[jobId].steps as Step[])[currentStep] = change;
 
 		setWorkflow?.(newWorkflow);
 
@@ -259,7 +74,7 @@ export const StepSettings = ({
 				...prev,
 				{
 					change: newWorkflow,
-					message: `${nameSetting} successfully updated`,
+					message: `${step.name} successfully updated`,
 				},
 			];
 		});
@@ -307,11 +122,206 @@ export const StepSettings = ({
 		onClose();
 	};
 
+	const updateCurrentStep = (key: string, value: any) => {
+		setCurrentStep((prev) => ({
+			...prev,
+			[key]: value,
+		}));
+	};
+
+	const basicSettings = [
+		{
+			id: "basic",
+			name: "id",
+			render: (hide: boolean) => (
+				<BaseSetting
+					settingName="id"
+					settingDetails='A unique identifier for the step. You can use the id to reference the step in contexts. For more information, see "Contexts."'
+					style={{ display: hide ? "inline-table" : "none" }}
+				>
+					<StringSetting
+						value={currentStep["id"]}
+						name="id"
+						onChange={(value) => updateCurrentStep("id", value)}
+					/>
+				</BaseSetting>
+			),
+		},
+		{
+			id: "basic",
+			name: "If",
+			render: (hide: boolean) => (
+				<BaseSetting
+					settingName="If"
+					settingDetails='Prevents a step from running unless a condition is met. You can use any supported context and expression to create a conditional. For more information on which contexts are supported in this key, see "Contexts."'
+					style={{ display: hide ? "inline-table" : "none" }}
+				>
+					<StringSetting
+						value={currentStep["if"]}
+						name="If"
+						onChange={(value) => updateCurrentStep("if", value)}
+					/>
+				</BaseSetting>
+			),
+		},
+		{
+			id: "basic",
+			name: "Run",
+			render: (hide: boolean) => (
+				<BaseSetting
+					settingName="Run"
+					settingDetails="Runs command-line programs that do not exceed 21,000 characters using the operating systems shell. If you do not provide a name, the step name will default to the text specified in the run command."
+					style={{ display: hide ? "inline-table" : "none" }}
+				>
+					<StringSetting
+						value={currentStep["run"]}
+						name="Run"
+						multiline
+						onChange={(value) => updateCurrentStep("run", value)}
+					/>
+				</BaseSetting>
+			),
+		},
+		{
+			id: "basic",
+			name: "Timeout",
+			render: (hide: boolean) => (
+				<BaseSetting
+					settingName="Timeout"
+					settingDetails="The maximum number of minutes to let a step run before GitHub automatically cancels it. Default: 360"
+					style={{ display: hide ? "inline-table" : "none" }}
+				>
+					<NumberSetting
+						value={currentStep["timeout-minutes"]}
+						onChange={(value) => updateCurrentStep("timeout-minutes", value)}
+					/>
+				</BaseSetting>
+			),
+		},
+		{
+			id: "basic",
+			name: "Uses",
+			render: (hide: boolean) => (
+				<BaseSetting
+					settingName="Uses"
+					settingDetails="Selects an action to run as part of a step in your job. An action is a reusable unit of code. You can use an action defined in the same repository as the workflow, a public repository, or in a published Docker container image."
+					style={{ display: hide ? "inline-table" : "none" }}
+				>
+					<StringSetting
+						value={currentStep.uses}
+						name="Uses"
+						onChange={(value) => updateCurrentStep("uses", value)}
+					/>
+				</BaseSetting>
+			),
+		},
+		{
+			id: "basic",
+			name: "Shell",
+			render: (hide: boolean) => (
+				<BaseSetting
+					settingName="Shell"
+					settingDetails="You can override the default shell settings in the runner's operating system and the job's default using the shell keyword."
+					style={{ display: hide ? "inline-table" : "none" }}
+				>
+					<StringSetting
+						value={currentStep.shell}
+						name="Shell"
+						onChange={(value) => updateCurrentStep("shell", value)}
+					/>
+				</BaseSetting>
+			),
+		},
+		{
+			id: "basic",
+			name: "Working directory",
+			render: (hide: boolean) => (
+				<BaseSetting
+					settingName="Working directory"
+					settingDetails="Specify the working directory of where to run the command."
+					style={{ display: hide ? "inline-table" : "none" }}
+				>
+					<StringSetting
+						value={currentStep["working-directory"]}
+						name="Working directory"
+						onChange={(value) => updateCurrentStep("working-directory", value)}
+					/>
+				</BaseSetting>
+			),
+		},
+		{
+			id: "basic",
+			name: "Continue on error",
+			render: (hide: boolean) => (
+				<BaseSetting
+					settingName="Continue on error"
+					settingDetails="Prevents a job from failing when a step fails. Set to true to allow a job to pass when this step fails."
+					style={{ display: hide ? "inline-table" : "none" }}
+				>
+					<BooleanSetting
+						value={currentStep["continue-on-error"]}
+						onChange={(value) => updateCurrentStep("continue-on-error", value)}
+					/>
+				</BaseSetting>
+			),
+		},
+	];
+
+	const withSettings = [
+		{
+			id: "with",
+			name: "With",
+			render: (hide: boolean) => (
+				<BaseSetting
+					settingName="With"
+					settingDetails="A map of the input parameters defined by the action. Each input parameter is a key/value pair. Input parameters are set as environment variables. The variable is prefixed with INPUT_ and converted to upper case."
+					style={{ display: hide ? "inline-table" : "none" }}
+				>
+					<ObjectSetting
+						value={currentStep["with"]}
+						name="With"
+						onChange={(value) => updateCurrentStep("with", value)}
+					/>
+				</BaseSetting>
+			),
+		},
+	];
+
+	const envSettings = [
+		{
+			id: "env",
+			name: "Env",
+			render: (hide: boolean) => (
+				<BaseSetting
+					settingName="Env"
+					settingDetails="Sets variables for steps to use in the runner environment"
+					style={{ display: hide ? "inline-table" : "none" }}
+				>
+					<ObjectSetting
+						value={currentStep["env"]}
+						name="Env"
+						onChange={(value) => updateCurrentStep("env", value)}
+					/>
+				</BaseSetting>
+			),
+		},
+	];
+
 	const allSettings = [...basicSettings, ...withSettings, ...envSettings];
 
 	return (
 		<div className={style.container} key={id}>
 			<div className={style.sidebar}>
+				<ToggleButtonGroup
+					color="primary"
+					value={yamlEditor ? "android" : "web"}
+					exclusive
+					onChange={(_, value) => setYamlEditor(value === "android")}
+					aria-label="Platform"
+				>
+					<ToggleButton value="web">UI</ToggleButton>
+					<ToggleButton value="android">YAML</ToggleButton>
+				</ToggleButtonGroup>
 				<List>
 					<ListItem disablePadding>
 						<ListItemButton
@@ -341,7 +351,10 @@ export const StepSettings = ({
 			</div>
 			<div className={style.main}>
 				<div className={style.header}>
-					<NameSetting ref={nameRef} value={step.name} />
+					<NameSetting
+						value={currentStep.name}
+						onChange={(value) => updateCurrentStep("name", value)}
+					/>
 					<IconButton
 						edge="start"
 						aria-label="settings"
@@ -373,8 +386,12 @@ export const StepSettings = ({
 					</IconButton>
 				</div>
 				<div className={style.settingsContainer}>
-					{allSettings.map((setting) =>
-						setting?.render(settingType === setting.id),
+					{yamlEditor ? (
+						<YamlEditor value={currentStep} onChange={setCurrentStep} />
+					) : (
+						allSettings.map((setting) =>
+							setting?.render(settingType === setting.id),
+						)
 					)}
 				</div>
 				<button className={style.saveButton} onClick={onClick}>
