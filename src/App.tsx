@@ -39,7 +39,7 @@ const acquireVsCodeApi = Function(`
 	}
 `);
 
-const vscode = acquireVsCodeApi();
+export const vscode = acquireVsCodeApi();
 
 function App() {
 	const [openSettings, setOpenSettings] = useState<
@@ -306,16 +306,64 @@ function App() {
 		});
 	}
 
-	const windowMessageListener = (event: MessageEvent) => {
-		if (vscode && event.data.template && event.data.fileUri) {
-			setWorkflow(YAML.parse(event.data.template));
+	const windowMessageListener = ({ data }: MessageEvent) => {
+		if (!vscode) {
+			return;
+		}
+
+		if (data.action === "open" && data.template && data.fileUri) {
+			setWorkflow(YAML.parse(data.template));
 			setWorkflowChanged([
 				{
-					change: YAML.parse(event.data.template),
+					change: YAML.parse(data.template),
 					message: "Workflow successfully loaded",
 				},
 			]);
-			setFileUri(event.data.fileUri);
+			setFileUri(data.fileUri);
+		}
+
+		if (data.action === "deleteStep") {
+			const { jobId, id } = data;
+
+			setWorkflow?.((prev) => {
+				if (!prev) {
+					return;
+				}
+
+				const currentJob = prev.jobs[jobId];
+
+				const remainingSteps = currentJob.steps?.filter((step) => {
+					return (
+						step.id !== id &&
+						step.name !== id &&
+						step.run !== id &&
+						step.uses !== id
+					);
+				});
+
+				const newWorkflow = {
+					...prev,
+					jobs: {
+						...prev.jobs,
+						[jobId]: {
+							...currentJob,
+							steps: remainingSteps,
+						},
+					},
+				};
+
+				setWorkflowChanged?.((prev) => [
+					...prev,
+					{
+						change: newWorkflow,
+						message: `Successfully removed step`,
+					},
+				]);
+
+				return newWorkflow;
+			});
+
+			setOpenStepSettings(undefined);
 		}
 	};
 

@@ -8,10 +8,11 @@ interface StringSettingProps {
 	value?: string | number | boolean;
 	name: string;
 	label?: string;
+	multiline?: boolean;
 }
 
 export const StringSetting = forwardRef(
-	({ value, name, label }: StringSettingProps, ref) => {
+	({ value, name, label, multiline }: StringSettingProps, ref) => {
 		const [currentValue, setCurrentValue] = useState(value);
 
 		useImperativeHandle(ref, () => ({ getValue }));
@@ -32,6 +33,7 @@ export const StringSetting = forwardRef(
 				}}
 				fullWidth
 				label={label}
+				multiline={multiline}
 				InputProps={{
 					endAdornment: currentValue && (
 						<InputAdornment position="end">

@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import * as R from "ramda";
 import { useContext, useRef, useState } from "react";
+import { vscode } from "../../App";
 import { WorkflowContext } from "../../Contexts/WorkflowContext";
 import { SettingsRef } from "../../types";
 import { Step } from "../../types/workflowTypes";
@@ -78,6 +79,24 @@ export const StepSettings = ({
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
 					<StringSetting ref={ifRef} value={step["if"]} name="If" />
+				</BaseSetting>
+			),
+		},
+		{
+			id: "basic",
+			name: "Run",
+			render: (hide: boolean) => (
+				<BaseSetting
+					settingName="Run"
+					settingDetails="Runs command-line programs that do not exceed 21,000 characters using the operating systems shell. If you do not provide a name, the step name will default to the text specified in the run command."
+					style={{ display: hide ? "inline-table" : "none" }}
+				>
+					<StringSetting
+						ref={runRef}
+						value={step["run"]}
+						name="Run"
+						multiline
+					/>
 				</BaseSetting>
 			),
 		},
@@ -328,11 +347,19 @@ export const StepSettings = ({
 						aria-label="settings"
 						title="Delete"
 						onClick={(e) => {
-							const response = window.confirm(
-								"Are you sure you want to remove this step?",
-							);
-							if (response) {
-								removeStep();
+							if (vscode) {
+								vscode.postMessage({
+									action: "deleteStep",
+									jobId,
+									id,
+								});
+							} else {
+								const response = window.confirm(
+									"Are you sure you want to remove this step?",
+								);
+								if (response) {
+									removeStep();
+								}
 							}
 						}}
 						sx={{

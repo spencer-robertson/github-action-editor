@@ -80,17 +80,23 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 			name: nameSetting,
 			if: ifSetting,
 			"timeout-minutes": timeoutSetting,
-			needs: needsSetting,
+			needs: needsSetting && needsSetting.length > 0 ? needsSetting : undefined,
 			"runs-on": runsOnSetting,
 			permissions: permissionsSetting,
 			outputs: outputsSetting,
 			"continue-on-error": continueOnErrorSetting,
 			env: envSetting,
 			environment: environmentSetting,
-			concurrency: concurrencySetting,
+			concurrency:
+				concurrencySetting && Object.keys(concurrencySetting).length > 0
+					? concurrencySetting
+					: undefined,
 			uses: usesSetting,
 			with: withSetting,
-			defaults: defaultsSetting,
+			defaults:
+				defaultsSetting && Object.keys(defaultsSetting).length > 0
+					? defaultsSetting
+					: undefined,
 		};
 
 		const newWorkflow = {

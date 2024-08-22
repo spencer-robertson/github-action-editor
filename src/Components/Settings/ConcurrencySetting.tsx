@@ -27,6 +27,10 @@ export const ConcurrencySetting = forwardRef(
 			const groupValue = groupRef?.current?.getValue();
 			const cancelInProgressValue = cancelInProgressRef?.current?.getValue();
 
+			if (!groupValue && !cancelInProgressValue) {
+				return undefined;
+			}
+
 			return { group: groupValue, "cancel-in-progress": cancelInProgressValue };
 		};
 
