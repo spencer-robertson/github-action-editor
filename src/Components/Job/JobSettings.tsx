@@ -5,6 +5,8 @@ import {
 	ListItem,
 	ListItemButton,
 	ListItemText,
+	ToggleButton,
+	ToggleButtonGroup,
 } from "@mui/material";
 import { useContext, useRef, useState } from "react";
 import { WorkflowContext } from "../../Contexts/WorkflowContext";
@@ -22,6 +24,7 @@ import { NumberSetting } from "../Settings/NumberSetting";
 import { ObjectSetting } from "../Settings/ObjectSetting";
 import { PermissionsSetting } from "../Settings/PermissionsSetting";
 import { StringSetting } from "../Settings/StringSetting";
+import YamlEditor from "../UI/YAMLEditor";
 import style from "./Job.module.scss";
 
 interface JobSettingsProps {
@@ -49,8 +52,10 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 	const { workflow, setWorkflow, setWorkflowChanged } =
 		useContext(WorkflowContext);
 	const [settingType, setSettingType] = useState("basic");
+	const [yamlEditor, setYamlEditor] = useState(false);
+	const [currentJob, setCurrentJob] = useState(job);
 
-	if (!job || !id) {
+	if (!currentJob || !id) {
 		return <></>;
 	}
 
@@ -128,7 +133,7 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					settingDetails='Prevents a job from running unless a condition is met. You can use any supported context and expression to create a conditional. For more information on which contexts are supported in this key, see "Contexts."'
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<StringSetting ref={ifRef} value={job["if"]} name="If" />
+					<StringSetting ref={ifRef} value={currentJob["if"]} name="If" />
 				</BaseSetting>
 			),
 		},
@@ -141,7 +146,10 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					settingDetails="The maximum number of minutes to let a job run before GitHub automatically cancels it. Default: 360"
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<NumberSetting ref={timeoutRef} value={job["timeout-minutes"]} />
+					<NumberSetting
+						ref={timeoutRef}
+						value={currentJob["timeout-minutes"]}
+					/>
 				</BaseSetting>
 			),
 		},
@@ -154,7 +162,11 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					settingDetails="Identifies any jobs that must complete successfully before this job will run. If a job fails or is skipped, all jobs that need it are skipped unless the jobs use a conditional expression that causes the job to continue. If a run contains a series of jobs that need each other, a failure or skip applies to all jobs in the dependency chain from the point of failure or skip onwards."
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<NeedsSetting ref={needsRef} value={job.needs} currentJob={id} />
+					<NeedsSetting
+						ref={needsRef}
+						value={currentJob.needs}
+						currentJob={id}
+					/>
 				</BaseSetting>
 			),
 		},
@@ -170,7 +182,7 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 				>
 					<ArrayComponent
 						ref={runsOnRef}
-						value={job["runs-on"]}
+						value={currentJob["runs-on"]}
 						name="Runs on"
 					/>
 				</BaseSetting>
@@ -188,7 +200,7 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 "
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<StringSetting ref={usesRef} value={job.uses} name="Uses" />
+					<StringSetting ref={usesRef} value={currentJob.uses} name="Uses" />
 				</BaseSetting>
 			),
 		},
@@ -203,7 +215,7 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 				>
 					<BooleanSetting
 						ref={continueOnErrorRef}
-						value={job["continue-on-error"]}
+						value={currentJob["continue-on-error"]}
 					/>
 				</BaseSetting>
 			),
@@ -216,7 +228,10 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 			name: "Permissions",
 			render: (hide: boolean) => (
 				<BaseSetting style={{ display: hide ? "inline-table" : "none" }}>
-					<PermissionsSetting ref={permissionsRef} value={job.permissions} />
+					<PermissionsSetting
+						ref={permissionsRef}
+						value={currentJob.permissions}
+					/>
 				</BaseSetting>
 			),
 		},
@@ -232,7 +247,7 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					settingDetails="When a job is used to call a reusable workflow, you can use with to provide a map of inputs that are passed to the called workflow. Any inputs that you pass must match the input specifications defined in the called workflow."
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<ObjectSetting ref={withRef} value={job.with} name="With" />
+					<ObjectSetting ref={withRef} value={currentJob.with} name="With" />
 				</BaseSetting>
 			),
 		},
@@ -246,7 +261,7 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 				<BaseSetting style={{ display: hide ? "inline-table" : "none" }}>
 					<DefaultsSetting
 						ref={defaultsRef}
-						value={job.defaults}
+						value={currentJob.defaults}
 						name="Defaults"
 					/>
 				</BaseSetting>
@@ -278,7 +293,7 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					settingDetails="A map of variables that are available to all steps in the job. You can set variables for the entire workflow or an individual step. For more information, see env and jobs.<job_id>.steps[*].env."
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<ObjectSetting ref={envRef} value={job.env} name="Env" />
+					<ObjectSetting ref={envRef} value={currentJob.env} name="Env" />
 				</BaseSetting>
 			),
 		},
@@ -294,7 +309,10 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					settingDetails='Used to define the environment that the job references. All environment protection rules must pass before a job referencing the environment is sent to a runner. For more information, see "Using environments for deployment."'
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<EnvironmentSetting ref={environmentRef} value={job["environment"]} />
+					<EnvironmentSetting
+						ref={environmentRef}
+						value={currentJob["environment"]}
+					/>
 				</BaseSetting>
 			),
 		},
@@ -310,7 +328,11 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					settingDetails="Used to create a map of outputs for a job. Job outputs are available to all downstream jobs that depend on this job. For more information on defining job dependencies, see jobs.<job_id>.needs."
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<ObjectSetting ref={outputsRef} value={job.outputs} name="Outputs" />
+					<ObjectSetting
+						ref={outputsRef}
+						value={currentJob.outputs}
+						name="Outputs"
+					/>
 				</BaseSetting>
 			),
 		},
@@ -326,7 +348,10 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					settingDetails='Used to ensure that only a single job or workflow using the same concurrency group will run at a time. Allowed expression contexts: github, inputs, vars, needs, strategy, and matrix. For more information about expressions, see "Expressions."'
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<ConcurrencySetting ref={concurrencyRef} value={job["concurrency"]} />
+					<ConcurrencySetting
+						ref={concurrencyRef}
+						value={currentJob["concurrency"]}
+					/>
 				</BaseSetting>
 			),
 		},
@@ -361,7 +386,7 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 				...prev,
 				{
 					change: newWorkflow,
-					message: `${job.name} successfully removed`,
+					message: `${currentJob.name} successfully removed`,
 				},
 			]);
 
@@ -374,6 +399,16 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 	return (
 		<div className={style.container} key={id}>
 			<div className={style.sidebar}>
+				<ToggleButtonGroup
+					color="primary"
+					value={yamlEditor ? "android" : "web"}
+					exclusive
+					onChange={(_, value) => setYamlEditor(value === "android")}
+					aria-label="Platform"
+				>
+					<ToggleButton value="web">UI</ToggleButton>
+					<ToggleButton value="android">YAML</ToggleButton>
+				</ToggleButtonGroup>
 				<List>
 					<ListItem disablePadding>
 						<ListItemButton
@@ -443,14 +478,14 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 			</div>
 			<div className={style.main}>
 				<div className={style.header}>
-					<NameSetting ref={nameRef} value={job.name} />
+					<NameSetting ref={nameRef} value={currentJob.name} />
 					<IconButton
 						edge="start"
 						aria-label="settings"
 						title="Delete"
 						onClick={() => {
 							const response = window.confirm(
-								`Are you sure you want to remove the ${job.name} job?`,
+								`Are you sure you want to remove the ${currentJob.name} job?`,
 							);
 
 							if (response) {
@@ -467,11 +502,15 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 						<DeleteOutline />
 					</IconButton>
 				</div>
-				<div className={style.settingsContainer}>
-					{allSettings.map((setting) =>
-						setting?.render(settingType === setting.id),
-					)}
-				</div>
+				{yamlEditor ? (
+					<YamlEditor value={currentJob} onChange={setCurrentJob} />
+				) : (
+					<div className={style.settingsContainer}>
+						{allSettings.map((setting) =>
+							setting?.render(settingType === setting.id),
+						)}
+					</div>
+				)}
 				<button className={style.saveButton} onClick={onClick}>
 					Save
 				</button>
