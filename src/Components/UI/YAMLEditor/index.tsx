@@ -25,9 +25,7 @@ export const YamlEditor = ({ value, onChange }: YamlEditorProps) => {
 		const jsyaml = require("js-yaml");
 
 		let diagnostics = [];
-		// console.log(view); This is the EditorView
-		// console.log(view.state); This is the EditorState
-		// console.log(view.state.doc); This is the object type Textleaf containing Editor text and related info.
+
 		try {
 			jsyaml.load(view.state.doc);
 		} catch (e: any) {
@@ -50,7 +48,6 @@ export const YamlEditor = ({ value, onChange }: YamlEditorProps) => {
 			value={YAML.stringify(currentValue)}
 			extensions={[yaml, basicSetup, lintGutter(), yamlLinter]}
 			onChange={(value) => {
-				console.log("value:", YAML.parse(value));
 				onChange(YAML.parse(value));
 			}}
 		/>

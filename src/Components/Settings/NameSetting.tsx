@@ -7,7 +7,6 @@ interface NameSettingProps {
 }
 
 export const NameSetting = ({ value, onChange }: NameSettingProps) => {
-	console.log("value:", value);
 	return (
 		<div className={style.title}>
 			<Input

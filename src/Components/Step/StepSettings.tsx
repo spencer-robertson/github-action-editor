@@ -318,6 +318,7 @@ export const StepSettings = ({
 					exclusive
 					onChange={(_, value) => setYamlEditor(value === "android")}
 					aria-label="Platform"
+					fullWidth
 				>
 					<ToggleButton value="web">UI</ToggleButton>
 					<ToggleButton value="android">YAML</ToggleButton>

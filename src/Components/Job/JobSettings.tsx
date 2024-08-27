@@ -9,6 +9,7 @@ import {
 	ToggleButtonGroup,
 } from "@mui/material";
 import { useContext, useState } from "react";
+import { vscode } from "../../App";
 import { WorkflowContext } from "../../Contexts/WorkflowContext";
 import { NormalJob } from "../../types/workflowTypes";
 import { ArrayComponent } from "../Settings/ArraySetting";
@@ -374,6 +375,7 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					exclusive
 					onChange={(_, value) => setYamlEditor(value === "android")}
 					aria-label="Platform"
+					fullWidth
 				>
 					<ToggleButton value="web">UI</ToggleButton>
 					<ToggleButton value="android">YAML</ToggleButton>
@@ -455,13 +457,19 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 						edge="start"
 						aria-label="settings"
 						title="Delete"
-						onClick={() => {
-							const response = window.confirm(
-								`Are you sure you want to remove the ${currentJob.name} job?`,
-							);
-
-							if (response) {
-								removeJob();
+						onClick={(e) => {
+							if (vscode) {
+								vscode.postMessage({
+									action: "deleteJob",
+									id,
+								});
+							} else {
+								const response = window.confirm(
+									`Are you sure you want to remove the ${currentJob.name} job?`,
+								);
+								if (response) {
+									removeJob();
+								}
 							}
 						}}
 						sx={{

@@ -138,7 +138,6 @@ function App() {
 
 	const saveWorkflow = () => {
 		const workflowString = YAML.stringify(workflow);
-		navigator.clipboard.writeText(workflowString);
 
 		if (fileUri && vscode) {
 			vscode.postMessage({
@@ -155,6 +154,17 @@ function App() {
 					{
 						change: workflow,
 						message: "Workflow successfully saved",
+					},
+				]);
+			}
+		} else {
+			navigator.clipboard.writeText(workflowString);
+			if (workflow) {
+				setWorkflowChanged((prev) => [
+					...prev,
+					{
+						change: workflow,
+						message: "Workflow successfully copied to clipboard",
 					},
 				]);
 			}
@@ -320,6 +330,35 @@ function App() {
 				},
 			]);
 			setFileUri(data.fileUri);
+		}
+
+		if (data.action === "deleteJob") {
+			const { id } = data;
+
+			setWorkflow?.((prev) => {
+				if (!prev) {
+					return prev;
+				}
+
+				const { [id]: oldJob, ...rest } = prev.jobs;
+
+				const newWorkflow = {
+					...prev,
+					jobs: { ...rest },
+				};
+
+				setWorkflowChanged?.((prev) => [
+					...prev,
+					{
+						change: newWorkflow,
+						message: `${oldJob.name} successfully removed`,
+					},
+				]);
+
+				return newWorkflow;
+			});
+
+			setOpenSettings(undefined);
 		}
 
 		if (data.action === "deleteStep") {

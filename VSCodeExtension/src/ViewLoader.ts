@@ -30,7 +30,7 @@ export default class ViewLoader {
 				if (message.action === "deleteStep") {
 					vscode.window
 						.showInformationMessage(
-							"Do you want to do this?",
+							"Do you want to do remove this step?",
 							"Yes",
 							"No",
 						)
@@ -39,6 +39,24 @@ export default class ViewLoader {
 								this._panel?.webview.postMessage({
 									action: "deleteStep",
 									jobId: message.jobId,
+									id: message.id,
+								});
+							}
+
+						});
+				}
+
+				if (message.action === "deleteJob") {
+					vscode.window
+						.showInformationMessage(
+							"Do you want to remove this job?",
+							"Yes",
+							"No",
+						)
+						.then((answer) => {
+							if (answer === "Yes") {
+								this._panel?.webview.postMessage({
+									action: "deleteJob",
 									id: message.id,
 								});
 							}
