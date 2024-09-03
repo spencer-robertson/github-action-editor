@@ -1,18 +1,22 @@
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 
-interface ArrayComponentProps {
+interface RunsOnSettingProps {
 	value: string | string[];
 	name: string;
-	onChange?: (value: string | string[] | undefined) => void;
+	onChange?: (value: string | string[]) => void;
 }
 
-export const ArrayComponent = ({
+export const RunsOnSetting = ({
 	value,
 	name,
 	onChange,
-}: ArrayComponentProps) => {
-	const currentValue = Array.isArray(value) ? value : [value];
+}: RunsOnSettingProps) => {
+	const currentValue = value
+		? Array.isArray(value)
+			? value
+			: [value]
+		: undefined;
 
 	const machines = [
 		"windows-latest",

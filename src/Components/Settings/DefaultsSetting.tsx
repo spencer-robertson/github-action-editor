@@ -9,6 +9,7 @@ import TextField from "@mui/material/TextField";
 import { useState } from "react";
 import { Defaults } from "../../types/workflowTypes";
 import { BaseSetting } from "./BaseSetting";
+import style from "./DefaultsSetting.module.scss";
 import { StringSetting } from "./StringSetting";
 
 interface DefaultsSettingProps {
@@ -80,34 +81,36 @@ export const DefaultsSetting = ({
 				settingName="Run"
 				settingDetails="Provide default shell and working-directory to all run steps in the job."
 			></BaseSetting>
-			<StringSetting
-				value={runValue?.shell}
-				name="Shell"
-				onChange={(newValue) => {
-					if (typeof newValue === "string") {
-						const { run, ...rest } = value || {};
+			<div className={style.run}>
+				<StringSetting
+					value={runValue?.shell}
+					name="Shell"
+					onChange={(newValue) => {
+						if (typeof newValue === "string") {
+							const { run, ...rest } = value || {};
 
-						onChange?.({
-							run: { ...run, shell: newValue },
-							...rest,
-						});
-					}
-				}}
-			/>
-			<StringSetting
-				value={runValue?.["working-directory"]}
-				name="Working directory"
-				onChange={(newValue) => {
-					if (typeof newValue === "string") {
-						const { run, ...rest } = value || {};
+							onChange?.({
+								run: { ...run, shell: newValue },
+								...rest,
+							});
+						}
+					}}
+				/>
+				<StringSetting
+					value={runValue?.["working-directory"]}
+					name="Working directory"
+					onChange={(newValue) => {
+						if (typeof newValue === "string") {
+							const { run, ...rest } = value || {};
 
-						onChange?.({
-							run: { ...run, "working-directory": newValue },
-							...rest,
-						});
-					}
-				}}
-			/>
+							onChange?.({
+								run: { ...run, "working-directory": newValue },
+								...rest,
+							});
+						}
+					}}
+				/>
+			</div>
 			<BaseSetting
 				settingName="Defaults"
 				settingDetails="Default settings that will apply to all steps in the job"

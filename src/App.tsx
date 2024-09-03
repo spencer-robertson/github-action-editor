@@ -6,7 +6,7 @@ import "@fontsource/roboto/700.css";
 import { useEffect, useMemo, useState } from "react";
 import YAML from "yaml";
 
-import { Alert, Box, Button, Modal, Snackbar } from "@mui/material";
+import { Alert, Box, Button, IconButton, Modal, Snackbar } from "@mui/material";
 import {
 	Connection,
 	Controls,
@@ -17,18 +17,20 @@ import {
 	useEdgesState,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { Settings as SettingsIcon } from "react-feather";
 import { Uri } from "vscode";
 import style from "./App.module.scss";
 import { Job } from "./Components/Job/Job";
 import { JobSettings } from "./Components/Job/JobSettings";
 import { StepSettings } from "./Components/Step/StepSettings";
 import { CustomEdge } from "./Components/UI/CustomEdge";
+import { WorkflowSettings } from "./Components/Workflow/WorkflowSettings";
 import { WorkflowContext } from "./Contexts/WorkflowContext";
 import { setTheme } from "./Theme";
 import workflowFile from "./mockData/workflow.yml";
 import { OpenJobSettingsState } from "./types";
 import { Step, Workflow } from "./types/workflowTypes";
-import { findIdsByValue, useNeedsConnections } from "./utils";
+import { cn, findIdsByValue, useNeedsConnections } from "./utils";
 
 // eslint-disable-next-line no-new-func
 const acquireVsCodeApi = Function(`
@@ -41,8 +43,9 @@ const acquireVsCodeApi = Function(`
 
 export const vscode = acquireVsCodeApi();
 
-function App() {
-	const [openSettings, setOpenSettings] = useState<
+export const App = () => {
+	const [openWorkflowSettings, setOpenWorkflowSettings] = useState(false);
+	const [openJobSettings, setOpenJobSettings] = useState<
 		OpenJobSettingsState | undefined
 	>(undefined);
 
@@ -226,7 +229,7 @@ function App() {
 					return true;
 				})
 				.map(([id, job], jobIndex) => {
-					const isOpenSettings = openSettings?.id === id;
+					const isOpenJobSettings = openJobSettings?.id === id;
 					const isOpenSteps = openSteps?.id === id;
 
 					const stepLength = job.steps?.length || 0;
@@ -251,8 +254,8 @@ function App() {
 						data: {
 							job,
 							jobId: id,
-							setOpenSettings,
-							isOpenSettings,
+							setOpenJobSettings,
+							isOpenJobSettings,
 							setOpenSteps,
 							isOpenSteps,
 							setOpenStepSettings,
@@ -272,7 +275,7 @@ function App() {
 	let possibleOpenSteps = 0;
 	const unNeededNodes: Node[] = unNeededJobs
 		.map(([id, job], jobIndex) => {
-			const isOpenSettings = openSettings?.id === id;
+			const isOpenJobSettings = openJobSettings?.id === id;
 			const isOpenSteps = openSteps?.id === id;
 
 			const stepLength = job.steps?.length || 0;
@@ -293,8 +296,8 @@ function App() {
 				data: {
 					job,
 					jobId: id,
-					setOpenSettings,
-					isOpenSettings,
+					setOpenJobSettings,
+					isOpenJobSettings,
 					setOpenSteps,
 					isOpenSteps,
 					setOpenStepSettings,
@@ -358,7 +361,7 @@ function App() {
 				return newWorkflow;
 			});
 
-			setOpenSettings(undefined);
+			setOpenJobSettings(undefined);
 		}
 
 		if (data.action === "deleteStep") {
@@ -543,6 +546,23 @@ function App() {
 			<div className={style.header}>
 				<div className={style.title}>{workflow.name}</div>
 				<div className={style.actions}>
+					<IconButton
+						edge="start"
+						aria-label="settings"
+						title="Settings"
+						onClick={(e) => {
+							e.stopPropagation();
+							setOpenWorkflowSettings(true);
+
+							setOpenStepSettings(undefined);
+						}}
+						sx={{
+							marginLeft: "0px",
+							marginRight: 1,
+						}}
+					>
+						<SettingsIcon className={cn(style.settingButton)} />
+					</IconButton>
 					<Button variant="outlined" onClick={addJob} size="large">
 						Add job
 					</Button>
@@ -572,20 +592,28 @@ function App() {
 					<Controls showInteractive={false} />
 				</ReactFlow>
 				<Modal
-					open={!!openSettings || !!openStepSettings}
+					open={
+						!!openWorkflowSettings || !!openJobSettings || !!openStepSettings
+					}
 					onClose={() => {
-						setOpenSettings(undefined);
+						setOpenJobSettings(undefined);
 						setOpenStepSettings(undefined);
+						setOpenWorkflowSettings(false);
 					}}
 					aria-labelledby="modal-modal-title"
 					aria-describedby="modal-modal-description"
 				>
 					<Box sx={boxStyle} className={style.modal}>
-						{openSettings && (
+						{openWorkflowSettings && (
+							<WorkflowSettings
+								onClose={() => setOpenWorkflowSettings(false)}
+							/>
+						)}
+						{openJobSettings && (
 							<JobSettings
-								job={openSettings?.job}
-								id={openSettings?.id}
-								onClose={() => setOpenSettings(undefined)}
+								job={openJobSettings?.job}
+								id={openJobSettings?.id}
+								onClose={() => setOpenJobSettings(undefined)}
 							/>
 						)}
 						{openStepSettings && (
@@ -601,6 +629,4 @@ function App() {
 			</WorkflowContext.Provider>
 		</div>
 	);
-}
-
-export default App;
+};

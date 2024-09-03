@@ -1,0 +1,206 @@
+@import "../../common";
+
+.jobContainer.jobContainer {
+	border-radius: 6px;
+	// border: 1px solid $colorText;
+	// padding: 12px;
+	max-width: 300px;
+	min-width: 300px;
+	// max-height: 60px;
+	gap: 10px;
+	background-color: $colorForeground;
+	// margin: auto;
+	color: $colorText;
+	position: relative;
+
+	.header {
+		display: flex;
+		align-items: center;
+	}
+
+	.openSettings {
+		color: #2a4ed4;
+	}
+
+	.settingButton {
+		transition: 0.2s;
+		color: $colorText;
+	}
+
+	.settingButton:hover {
+		color: $colorTextLight;
+	}
+
+	.jobName {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		line-height: 20px;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
+			Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+	}
+
+	.spacer {
+		flex: 1 1;
+	}
+}
+
+.container {
+	overflow: none;
+	height: 100%;
+	display: flex;
+	flex-direction: row;
+	gap: 30px;
+
+	.sidebar {
+		flex: 20%;
+	}
+
+	.main {
+		flex: 80%;
+		overflow: none;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+
+		.header {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+		}
+		> h1 {
+			margin: 10px;
+		}
+
+		.settingsContainer {
+			overflow-y: scroll;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			&::-webkit-scrollbar {
+				display: unset;
+				width: 5px;
+				height: 5px;
+			}
+
+			&::-webkit-scrollbar-thumb {
+				border-radius: 5px;
+				box-shadow: inset 0 0 3px 3px grey;
+			}
+		}
+		.saveButton {
+			backface-visibility: hidden;
+			background-color: #405cf5;
+			border-radius: 6px;
+			border-width: 0;
+			box-shadow: rgba(50, 50, 93, 0.1) 0 0 0 1px inset,
+				rgba(50, 50, 93, 0.1) 0 2px 5px 0, rgba(0, 0, 0, 0.07) 0 1px 1px 0;
+			box-sizing: border-box;
+			font-family: -apple-system, system-ui, "Segoe UI", Roboto,
+				"Helvetica Neue", Ubuntu, sans-serif;
+			font-size: 100%;
+			height: 44px;
+			padding: 0 25px;
+			cursor: pointer;
+			margin: 10px;
+			color: white !important;
+		}
+
+		.saveButton:hover {
+			background-color: #2a4ed4;
+		}
+
+		.saveButton:disabled {
+			cursor: default;
+		}
+
+		.saveButton:active {
+			box-shadow: rgba(50, 50, 93, 0.1) 0 0 0 1px inset,
+				rgba(50, 50, 93, 0.2) 0 6px 15px 0, rgba(0, 0, 0, 0.1) 0 2px 2px 0,
+				rgba(50, 151, 211, 0.3) 0 0 0 4px;
+		}
+	}
+}
+
+.endShadow,
+.endConnector {
+	height: 15px;
+	width: 15px;
+	border-radius: 15px;
+	background-color: inherit;
+	position: absolute;
+	top: 50%;
+	background-color: $colorForeground;
+	transform: translate(-50%, -50%);
+	z-index: 1;
+	border: none;
+}
+
+.startShadow,
+.startConnector {
+	height: 15px;
+	width: 15px;
+	border-radius: 15px;
+	background-color: inherit;
+	position: absolute;
+	top: 50%;
+	background-color: $colorForeground;
+	transform: translate(+50%, -50%);
+	z-index: 1;
+	right: 0;
+	border: none;
+}
+
+.endConnector::before {
+	position: absolute;
+	top: 4px;
+	left: 4px;
+	width: 8px;
+	height: 8px;
+	content: "";
+	background-color: #636e7b;
+	border-radius: 50%;
+	transition: background-color ease-out 0.12s;
+}
+
+.startConnector::before {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	width: 8px;
+	height: 8px;
+	content: "";
+	background-color: #636e7b;
+	border-radius: 50%;
+	transition: background-color ease-out 0.12s;
+}
+
+.startConnector:hover::before {
+	background-color: $colorActive;
+}
+
+.endConnector:hover::before {
+	background-color: $colorActive;
+}
+
+.endShadow {
+	// box-shadow:
+	// 	0 0 1em -0.125em rgba(10, 10, 10, 0.1),
+	// 	0 0 0 1px rgba(10, 10, 10, 0.2);
+	box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+		0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+
+	// border: 2px solid transparent;
+	z-index: -1;
+}
+
+.startShadow {
+	// box-shadow:
+	// 	0 0 1em -0.125em rgba(10, 10, 10, 0.1),
+	// 	0 0 0 1px rgba(10, 10, 10, 0.2);
+	box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+		0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+
+	// border: 2px solid transparent;
+	z-index: -1;
+}

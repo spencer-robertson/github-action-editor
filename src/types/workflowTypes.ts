@@ -895,15 +895,14 @@ export interface Workflow {
 	env?:
 	| {
 		[k: string]: string | number | boolean;
-	}
-	| StringContainingExpressionSyntax;
+	};
 	defaults?: Defaults;
 	/**
 	 * Concurrency ensures that only a single job or workflow using the same concurrency group will run at a time. A concurrency group can be any string or expression. The expression can use any context except for the secrets context.
 	 * You can also specify concurrency at the workflow level.
 	 * When a concurrent job or workflow is queued, if another job or workflow using the same concurrency group in the repository is in progress, the queued job or workflow will be pending. Any previously pending job or workflow in the concurrency group will be canceled. To also cancel any currently running job or workflow in the same concurrency group, specify cancel-in-progress: true.
 	 */
-	concurrency?: string | Concurrency;
+	concurrency?: Concurrency;
 	/**
 	 * A workflow run is made up of one or more jobs. Jobs run in parallel by default. To run jobs sequentially, you can define dependencies on other jobs using the jobs.<job_id>.needs keyword.
 	 * Each job runs in a fresh instance of the virtual environment specified by runs-on.

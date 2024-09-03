@@ -12,7 +12,6 @@ import { useContext, useState } from "react";
 import { vscode } from "../../App";
 import { WorkflowContext } from "../../Contexts/WorkflowContext";
 import { NormalJob } from "../../types/workflowTypes";
-import { ArrayComponent } from "../Settings/ArraySetting";
 import { BaseSetting } from "../Settings/BaseSetting";
 import { BooleanSetting } from "../Settings/BooleanSetting";
 import { ConcurrencySetting } from "../Settings/ConcurrencySetting";
@@ -23,6 +22,7 @@ import { NeedsSetting } from "../Settings/NeedsSetting";
 import { NumberSetting } from "../Settings/NumberSetting";
 import { ObjectSetting } from "../Settings/ObjectSetting";
 import { PermissionsSetting } from "../Settings/PermissionsSetting";
+import { RunsOnSetting } from "../Settings/RunsOnSetting";
 import { StringSetting } from "../Settings/StringSetting";
 import YamlEditor from "../UI/YAMLEditor";
 import style from "./Job.module.scss";
@@ -163,7 +163,7 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 					settingDetails="Defines the type of machine to run the job on. You can specify custom runners by typing in your runner and pressing enter."
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
-					<ArrayComponent
+					<RunsOnSetting
 						value={currentJob["runs-on"]}
 						name="Runs on"
 						onChange={(value) => updateCurrentJob("runs-on", value)}
@@ -485,6 +485,7 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 				<div className={style.settingsContainer}>
 					{yamlEditor ? (
 						<YamlEditor
+							word={settingType}
 							value={currentJobWithoutSteps as NormalJob}
 							onChange={(value: any) =>
 								setCurrentJob({ ...value, steps: job.steps })

@@ -9,7 +9,7 @@ import {
 	NotDraggingStyle,
 } from "react-beautiful-dnd";
 import { WorkflowContext } from "../../Contexts/WorkflowContext";
-import { OpenJobSettingsState, OpenStepSettingsState } from "../../types";
+import { OpenStepSettingsState } from "../../types";
 import { NormalJob, Step as StepType } from "../../types/workflowTypes";
 import { Step } from "./Step";
 import style from "./Steps.module.scss";
@@ -20,15 +20,9 @@ interface StepsProps {
 	setOpenStepSettings: Dispatch<
 		SetStateAction<OpenStepSettingsState | undefined>
 	>;
-	setOpenSettings: Dispatch<SetStateAction<OpenJobSettingsState | undefined>>;
 }
 
-export const Steps = ({
-	job,
-	id,
-	setOpenSettings,
-	setOpenStepSettings,
-}: StepsProps) => {
+export const Steps = ({ job, id, setOpenStepSettings }: StepsProps) => {
 	const { setWorkflow, setWorkflowChanged } = useContext(WorkflowContext);
 
 	const addStep = () => {
@@ -181,7 +175,6 @@ export const Steps = ({
 												<Step
 													step={step}
 													id={id}
-													setOpenSettings={setOpenSettings}
 													setOpenStepSettings={setOpenStepSettings}
 												/>
 											</div>

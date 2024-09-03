@@ -388,7 +388,11 @@ export const StepSettings = ({
 				</div>
 				<div className={style.settingsContainer}>
 					{yamlEditor ? (
-						<YamlEditor value={currentStep} onChange={setCurrentStep} />
+						<YamlEditor
+							word={settingType}
+							value={currentStep}
+							onChange={setCurrentStep}
+						/>
 					) : (
 						allSettings.map((setting) =>
 							setting?.render(settingType === setting.id),
