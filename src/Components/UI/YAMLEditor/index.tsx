@@ -57,9 +57,11 @@ export const YamlEditor = ({ word, value, onChange }: YamlEditorProps) => {
 
 	useEffect(() => {
 		const stringValue = YAML.stringify(value);
+		console.log("stringValue:", stringValue);
 
 		if (word && stringValue) {
 			const index = stringValue.indexOf(newWord);
+			console.log("index:", index);
 
 			if (index !== -1) {
 				ref.current?.view?.dispatch({

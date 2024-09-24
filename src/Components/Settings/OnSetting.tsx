@@ -1,14 +1,20 @@
-import { AddCircleOutline } from "@mui/icons-material";
+import { AddCircleOutline, Delete, Edit } from "@mui/icons-material";
 import {
 	Autocomplete,
 	Card,
 	CardActions,
 	CardContent,
+	CardHeader,
+	Checkbox,
+	FormControlLabel,
 	IconButton,
 } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import { useState } from "react";
+import YAML from "yaml";
 import { Workflow } from "../../types/workflowTypes";
+import { cn } from "../../utils";
+import style from "./OnSetting.module.scss";
 
 interface OnSettingProps {
 	value?: Workflow["on"];
@@ -16,10 +22,9 @@ interface OnSettingProps {
 }
 
 export const OnSetting = ({ value, onChange }: OnSettingProps) => {
-	const [selectedValue, setSelectedValue] = useState<string | null>();
+	const [selectedValue, setSelectedValue] = useState<string | null>(null);
 	const [selectedExtra, setSelectedExtra] = useState<any>();
 
-	const isPlainValue = typeof value === "string" || Array.isArray(value);
 	const isObjectValue = typeof value === "object" && !Array.isArray(value);
 
 	const onAddClicked = () => {
@@ -48,6 +53,21 @@ export const OnSetting = ({ value, onChange }: OnSettingProps) => {
 				}
 			}
 		}
+
+		setSelectedValue(null);
+		setSelectedExtra(null);
+	};
+
+	const onDeleteClicked = (key: string) => {
+		onChange?.(
+			isObjectValue &&
+				Object.fromEntries(Object.entries(value).filter(([k, _]) => k !== key)),
+		);
+	};
+
+	const onEditClicked = (key: string) => {
+		setSelectedValue(key);
+		setSelectedExtra(value?.[key]);
 	};
 
 	const events = [
@@ -88,10 +108,11 @@ export const OnSetting = ({ value, onChange }: OnSettingProps) => {
 		"workflow_run",
 	];
 
+	console.log("selectedValue:", selectedValue);
 	return (
-		<div>
+		<div className={style.container}>
 			<Card>
-				<CardContent>
+				<CardContent className={style.container}>
 					<Autocomplete
 						id="tags-outlined"
 						options={events}
@@ -102,8 +123,7 @@ export const OnSetting = ({ value, onChange }: OnSettingProps) => {
 							<TextField {...params} placeholder={"name"} />
 						)}
 						onChange={(_, value) => {
-							setSelectedValue?.(value);
-							setSelectedExtra?.(undefined);
+							onEditClicked(value);
 						}}
 					/>
 					{selectedValue === "branch_protection_rule" && (
@@ -250,6 +270,14 @@ export const OnSetting = ({ value, onChange }: OnSettingProps) => {
 							onChange={(value) => setSelectedExtra({ types: value })}
 						/>
 					)}
+					{selectedValue === "workflow_dispatch" && (
+						<WorkflowDispatchOptions
+							value={selectedExtra}
+							onChange={(key, value) =>
+								setSelectedExtra((prev: any) => ({ ...prev, [key]: value }))
+							}
+						/>
+					)}
 					{selectedValue === "workflow_run" && (
 						<WorkflowRunOptions
 							value={selectedExtra}
@@ -267,11 +295,35 @@ export const OnSetting = ({ value, onChange }: OnSettingProps) => {
 			</Card>
 			{isObjectValue &&
 				Object.entries(value).map(([key, value]) => {
+					const isSelectedValue = key === selectedValue;
 					return (
-						<Card>
+						<Card
+							className={cn(isSelectedValue && style.selected)}
+							// sx={isSelectedValue && { backgroundColor: "lightgrey" }}
+						>
+							<CardHeader
+								title={key}
+								action={
+									<>
+										<IconButton
+											aria-label="Add"
+											onClick={() => onEditClicked(key)}
+											disabled={isSelectedValue}
+										>
+											<Edit />
+										</IconButton>
+										<IconButton
+											aria-label="Add"
+											onClick={() => onDeleteClicked(key)}
+											disabled={isSelectedValue}
+										>
+											<Delete />
+										</IconButton>
+									</>
+								}
+							/>
 							<CardContent>
-								{key}
-								{value && <pre>{JSON.stringify(value, null, 2)}</pre>}
+								{value && <pre>{YAML.stringify(value, null, 2)}</pre>}
 							</CardContent>
 						</Card>
 					);
@@ -293,7 +345,7 @@ const BranchProtectionOptions = ({
 			multiple
 			id="branch-protection-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -318,7 +370,7 @@ const CheckRunOptions = ({
 			multiple
 			id="check-run-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -343,7 +395,7 @@ const CheckSuiteOptions = ({
 			multiple
 			id="check-suite-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -382,7 +434,7 @@ const DiscussionOptions = ({
 			multiple
 			id="discussion-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -407,7 +459,7 @@ const DiscussionCommentOptions = ({
 			multiple
 			id="discussion-comment-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -432,7 +484,7 @@ const IssueCommentOptions = ({
 			multiple
 			id="issue-comment-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -474,7 +526,7 @@ const IssueOptions = ({
 			multiple
 			id="issue-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -499,7 +551,7 @@ const LabelOptions = ({
 			multiple
 			id="label-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -524,7 +576,7 @@ const MergeGroupOptions = ({
 			multiple
 			id="merge-group-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -549,7 +601,7 @@ const MileStoneOptions = ({
 			multiple
 			id="milestone-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -574,7 +626,7 @@ const ProjectOptions = ({
 			multiple
 			id="project-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -599,7 +651,7 @@ const ProjectCardOptions = ({
 			multiple
 			id="project-card-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -624,7 +676,7 @@ const ProjectColumnOptions = ({
 			multiple
 			id="project-column-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -684,7 +736,7 @@ const PullRequestOptions = ({
 				multiple
 				id="pull-request-options-branches"
 				options={[]}
-				value={value?.branches}
+				value={value?.branches || []}
 				getOptionLabel={(option) => option}
 				filterSelectedOptions
 				renderInput={(params) => (
@@ -699,7 +751,7 @@ const PullRequestOptions = ({
 				multiple
 				id="pull-request-options-paths"
 				options={[]}
-				value={value?.paths}
+				value={value?.paths || []}
 				getOptionLabel={(option) => option}
 				filterSelectedOptions
 				renderInput={(params) => (
@@ -728,7 +780,7 @@ const PullRequestReviewOptions = ({
 			multiple
 			id="pull-request-review-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -753,7 +805,7 @@ const PullRequestReviewCommentOptions = ({
 			multiple
 			id="pull-request-review-comment-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -797,7 +849,7 @@ const PullRequestTargetOptions = ({
 				multiple
 				id="pull-request-target-options"
 				options={options}
-				value={value?.types}
+				value={value?.types || []}
 				getOptionLabel={(option) => option}
 				filterSelectedOptions
 				renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -809,7 +861,7 @@ const PullRequestTargetOptions = ({
 				multiple
 				id="pull-request-target-options-branches"
 				options={[]}
-				value={value?.branches}
+				value={value?.branches || []}
 				getOptionLabel={(option) => option}
 				filterSelectedOptions
 				renderInput={(params) => (
@@ -824,7 +876,7 @@ const PullRequestTargetOptions = ({
 				multiple
 				id="pull-request-target-options-paths"
 				options={[]}
-				value={value?.paths}
+				value={value?.paths || []}
 				getOptionLabel={(option) => option}
 				filterSelectedOptions
 				renderInput={(params) => (
@@ -846,13 +898,14 @@ const PushOptions = ({
 	value: any;
 	onChange: (key: string, value: string[]) => void;
 }) => {
+	console.log("value:", value);
 	return (
 		<>
 			<Autocomplete
 				multiple
 				id="push-options-branches"
 				options={[]}
-				value={value?.branches}
+				value={value?.branches || []}
 				getOptionLabel={(option) => option}
 				filterSelectedOptions
 				renderInput={(params) => (
@@ -867,7 +920,7 @@ const PushOptions = ({
 				multiple
 				id="push-options-paths"
 				options={[]}
-				value={value?.paths}
+				value={value?.paths || []}
 				getOptionLabel={(option) => option}
 				filterSelectedOptions
 				renderInput={(params) => (
@@ -882,7 +935,7 @@ const PushOptions = ({
 				multiple
 				id="push-options-tags"
 				options={[]}
-				value={value?.tags}
+				value={value?.tags || []}
 				getOptionLabel={(option) => option}
 				filterSelectedOptions
 				renderInput={(params) => <TextField {...params} placeholder={"Tags"} />}
@@ -909,7 +962,7 @@ const RegistryPackageOptions = ({
 			multiple
 			id="registry-package-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -942,7 +995,7 @@ const ReleaseOptions = ({
 			multiple
 			id="release-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -965,7 +1018,7 @@ const RepositoryDispatchOptions = ({
 			multiple
 			options={[]}
 			id="repository-dispatch-options"
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -1010,7 +1063,7 @@ const WatchOptions = ({
 			multiple
 			id="watch-options"
 			options={options}
-			value={value}
+			value={value || []}
 			getOptionLabel={(option) => option}
 			filterSelectedOptions
 			renderInput={(params) => <TextField {...params} placeholder={"Type"} />}
@@ -1023,6 +1076,168 @@ const WatchOptions = ({
 
 // TODO:
 // const workflow_dispatch
+const WorkflowDispatchOptions = ({
+	value,
+	onChange,
+}: {
+	value: any;
+	onChange: (key: string, value: Record<string, unknown> | undefined) => void;
+}) => {
+	const options = ["choice", "boolean", "environment", "string"];
+	const [input, setInput] = useState<string | null>(null);
+	const [description, setDescription] = useState<string | null>(null);
+	const [required, setRequired] = useState<boolean | null>(null);
+	const [defaultValue, setDefaultValue] = useState<string | null>(null);
+	const [type, setType] = useState<string | null>(null);
+	const [optionsValue, setOptionsValue] = useState<string[]>([]);
+	const [inputs, setInputs] = useState<Record<string, unknown>>(
+		value?.inputs || {},
+	);
+
+	const onAddClicked = () => {
+		if (input) {
+			if (
+				!description &&
+				!required &&
+				!defaultValue &&
+				!type &&
+				!optionsValue?.length
+			) {
+				console.log("description:", description);
+				console.log("HERE");
+				setInputs((prev) => ({
+					...prev,
+					[input]: null,
+				}));
+
+				onChange("inputs", {
+					...inputs,
+					[input]: null,
+				});
+			}
+
+			const newInput = {
+				description: description ? description : undefined,
+				required: required ? required : undefined,
+				default: defaultValue ? defaultValue : undefined,
+				type: type ? type : undefined,
+				options: optionsValue?.length ? optionsValue : undefined,
+			};
+
+			setInputs((prev) => ({
+				...prev,
+				[input]: newInput,
+			}));
+
+			onChange("inputs", {
+				...inputs,
+				[input]: newInput,
+			});
+		}
+	};
+
+	return (
+		<>
+			<Card>
+				<CardHeader title="Input" />
+				<CardContent className={style.container}>
+					<TextField
+						id="input"
+						label="Input name"
+						variant="standard"
+						onChange={(e) => {
+							setInput(e.target.value);
+						}}
+						value={input}
+						fullWidth
+					/>
+					<TextField
+						id="description"
+						label="Input description"
+						variant="standard"
+						onChange={(e) => {
+							setDescription(e.target.value);
+						}}
+						value={description}
+						fullWidth
+					/>
+					<FormControlLabel
+						control={
+							<Checkbox
+								sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }}
+								checked={!!required}
+								onChange={(e) => {
+									setRequired?.(e.target.checked);
+								}}
+							/>
+						}
+						label="Required"
+					/>
+
+					<TextField
+						id="default"
+						label="Input default value"
+						variant="standard"
+						onChange={(e) => {
+							setDefaultValue(e.target.value);
+						}}
+						value={defaultValue}
+						fullWidth
+					/>
+					<Autocomplete
+						id="workflow-dispatch-options-types"
+						options={options}
+						value={type}
+						getOptionLabel={(option) => option}
+						filterSelectedOptions
+						renderInput={(params) => (
+							<TextField {...params} placeholder={"Type"} />
+						)}
+						onChange={(_, value) => {
+							setType?.(value);
+						}}
+					/>
+					{type === "choice" && (
+						<Autocomplete
+							multiple
+							id="options"
+							options={[]}
+							value={optionsValue}
+							getOptionLabel={(option) => option}
+							filterSelectedOptions
+							renderInput={(params) => (
+								<TextField {...params} placeholder={"Options"} />
+							)}
+							onChange={(_, value) => {
+								setOptionsValue(value);
+							}}
+							freeSolo
+						/>
+					)}
+					<CardActions>
+						<IconButton aria-label="Add" onClick={onAddClicked}>
+							<AddCircleOutline />
+						</IconButton>
+					</CardActions>
+				</CardContent>
+			</Card>
+			{Object.entries(inputs || {})?.map(([title, input]) => {
+				return (
+					<Card>
+						<CardContent>
+							{title}
+							{input?.description && <p>Description: {input.description}</p>}
+							{input?.required && <p>Required</p>}
+							{input?.default && <p>Default: {input.default}</p>}
+							{input?.type && <p>Type: {input.type}</p>}
+							{input?.options && <p>Options: {input.options.join(", ")}</p>}
+						</CardContent>
+					</Card>
+				);
+			})}
+		</>
+	);
+};
 
 const WorkflowRunOptions = ({
 	value,
@@ -1039,7 +1254,7 @@ const WorkflowRunOptions = ({
 				multiple
 				id="workflow-run-options-types"
 				options={options}
-				value={value?.types}
+				value={value?.types || []}
 				getOptionLabel={(option) => option}
 				filterSelectedOptions
 				renderInput={(params) => (
@@ -1053,7 +1268,7 @@ const WorkflowRunOptions = ({
 				multiple
 				id="workflow-run-options-workflows"
 				options={[]}
-				value={value?.workflows}
+				value={value?.workflows || []}
 				getOptionLabel={(option) => option}
 				filterSelectedOptions
 				renderInput={(params) => (
@@ -1069,7 +1284,7 @@ const WorkflowRunOptions = ({
 				multiple
 				id="workflow-run-options-branches"
 				options={[]}
-				value={value?.branches}
+				value={value?.branches || []}
 				getOptionLabel={(option) => option}
 				filterSelectedOptions
 				renderInput={(params) => (
