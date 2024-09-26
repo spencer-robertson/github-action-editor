@@ -703,9 +703,7 @@ export interface Workflow {
 	 * The name of the GitHub event that triggers the workflow. You can provide a single event string, array of events, array of event types, or an event configuration map that schedules a workflow or restricts the execution of a workflow to specific files, tags, or branch changes. For a list of available events, see https://help.github.com/en/github/automating-your-workflow-with-github-actions/events-that-trigger-workflows.
 	 */
 	on:
-	| Event
-	| [Event, ...Event[]]
-	| {
+	{
 		branch_protection_rule?: EventObject;
 		check_run?: EventObject1;
 		check_suite?: EventObject2;

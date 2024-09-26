@@ -59,7 +59,10 @@ export const Job = (props: JobProps) => {
 
 			<Grow
 				in={true}
-				style={{ transformOrigin: "0 0 0", visibility: "visible" }}
+				style={{
+					transformOrigin: "0 0 0",
+					visibility: "visible",
+				}}
 				timeout={300}
 			>
 				<Card
@@ -115,6 +118,7 @@ export const Job = (props: JobProps) => {
 								}}
 								aria-expanded={isOpenSteps}
 								aria-label="show more"
+								className={style.expand}
 							>
 								<ExpandMoreIcon />
 							</ExpandMore>

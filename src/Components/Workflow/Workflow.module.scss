@@ -1,50 +1,5 @@
 @import "../../common";
 
-.jobContainer.jobContainer {
-	border-radius: 6px;
-	// border: 1px solid $colorText;
-	// padding: 12px;
-	max-width: 300px;
-	min-width: 300px;
-	// max-height: 60px;
-	gap: 10px;
-	background-color: $colorForeground;
-	// margin: auto;
-	color: $colorText;
-	position: relative;
-
-	.header {
-		display: flex;
-		align-items: center;
-	}
-
-	.openSettings {
-		color: #2a4ed4;
-	}
-
-	.settingButton {
-		transition: 0.2s;
-		color: $colorText;
-	}
-
-	.settingButton:hover {
-		color: $colorTextLight;
-	}
-
-	.jobName {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		line-height: 20px;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
-			Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-	}
-
-	.spacer {
-		flex: 1 1;
-	}
-}
-
 .container {
 	overflow: none;
 	height: 100%;
@@ -58,7 +13,7 @@
 
 	.main {
 		flex: 80%;
-		overflow: none;
+		overflow: auto;
 		height: 100%;
 		display: flex;
 		flex-direction: column;

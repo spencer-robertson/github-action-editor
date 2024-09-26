@@ -4,7 +4,6 @@ import {
 	List,
 	ListItem,
 	ListItemButton,
-	ListItemText,
 	ToggleButton,
 	ToggleButtonGroup,
 } from "@mui/material";
@@ -19,6 +18,7 @@ import { NameSetting } from "../Settings/NameSetting";
 import { NumberSetting } from "../Settings/NumberSetting";
 import { ObjectSetting } from "../Settings/ObjectSetting";
 import { StringSetting } from "../Settings/StringSetting";
+import { SideBarLabel } from "../UI/SideBarLabel/SideBarLabel";
 import YamlEditor from "../UI/YAMLEditor";
 import style from "./Steps.module.scss";
 
@@ -122,7 +122,15 @@ export const StepSettings = ({
 		onClose();
 	};
 
-	const updateCurrentStep = (key: string, value: any) => {
+	const updateCurrentStep = (key: keyof Step, value: any) => {
+		// If no value, or value is an empty object or an empty string, remove the key from the object
+		if (!value || (typeof value === "object" && !Object.keys(value).length)) {
+			const newValue = { ...currentStep };
+			delete newValue[key];
+			setCurrentStep(newValue);
+			return;
+		}
+
 		setCurrentStep((prev) => ({
 			...prev,
 			[key]: value,
@@ -329,7 +337,19 @@ export const StepSettings = ({
 							onClick={() => setSettingType("basic")}
 							selected={settingType === "basic"}
 						>
-							<ListItemText primary="Basic" />
+							<SideBarLabel
+								primary="Basic"
+								hasValue={
+									!!currentStep["id"] ||
+									!!currentStep["if"] ||
+									!!currentStep["run"] ||
+									!!currentStep["timeout-minutes"] ||
+									!!currentStep["uses"] ||
+									!!currentStep.shell ||
+									!!currentStep["working-directory"] ||
+									!!currentStep["continue-on-error"]
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -337,7 +357,13 @@ export const StepSettings = ({
 							onClick={() => setSettingType("with")}
 							selected={settingType === "with"}
 						>
-							<ListItemText primary="With" />
+							<SideBarLabel
+								primary="With"
+								hasValue={
+									!!currentStep["with"] &&
+									!!Object.keys(currentStep["with"]).length
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -345,7 +371,13 @@ export const StepSettings = ({
 							onClick={() => setSettingType("env")}
 							selected={settingType === "env"}
 						>
-							<ListItemText primary="Env" />
+							<SideBarLabel
+								primary="Env"
+								hasValue={
+									!!currentStep["env"] &&
+									!!Object.keys(currentStep["env"]).length
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 				</List>

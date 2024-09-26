@@ -12,11 +12,7 @@ export const RunsOnSetting = ({
 	name,
 	onChange,
 }: RunsOnSettingProps) => {
-	const currentValue = value
-		? Array.isArray(value)
-			? value
-			: [value]
-		: undefined;
+	const currentValue = value ? (Array.isArray(value) ? value : [value]) : [];
 
 	const machines = [
 		"windows-latest",

@@ -1,0 +1,14 @@
+.editor {
+	border-radius: 4px;
+	border-color: rgba(0, 0, 0, 0.23);
+	border-width: 1px;
+	border-style: solid;
+	overflow: unset;
+
+	> textarea {
+		padding: 20px !important;
+	}
+	> pre {
+		padding: 20px !important;
+	}
+}

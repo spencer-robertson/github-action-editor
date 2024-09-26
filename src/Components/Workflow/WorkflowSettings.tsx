@@ -2,7 +2,6 @@ import {
 	List,
 	ListItem,
 	ListItemButton,
-	ListItemText,
 	ToggleButton,
 	ToggleButtonGroup,
 } from "@mui/material";
@@ -14,9 +13,10 @@ import { ConcurrencySetting } from "../Settings/ConcurrencySetting";
 import { DefaultsSetting } from "../Settings/DefaultsSetting";
 import { NameSetting } from "../Settings/NameSetting";
 import { ObjectSetting } from "../Settings/ObjectSetting";
-import { OnSetting } from "../Settings/OnSetting";
+import { OnSetting } from "../Settings/OnSetting/OnSetting";
 import { PermissionsSetting } from "../Settings/PermissionsSetting";
 import { StringSetting } from "../Settings/StringSetting";
+import { SideBarLabel } from "../UI/SideBarLabel/SideBarLabel";
 import YamlEditor from "../UI/YAMLEditor";
 import style from "./Workflow.module.scss";
 
@@ -53,7 +53,15 @@ export const WorkflowSettings = ({ onClose }: WorkflowSettingsProps) => {
 		]);
 	};
 
-	const updateWorkflow = (key: string, value: any) => {
+	const updateWorkflow = (key: keyof Workflow, value: any) => {
+		// If no value, or value is an empty object or an empty string, remove the key from the object
+		if (!value || (typeof value === "object" && !Object.keys(value).length)) {
+			const newValue = { ...currentWorkflow };
+			delete newValue[key];
+			setCurrentWorkflow(newValue);
+			return;
+		}
+
 		setCurrentWorkflow((prev) => ({
 			...prev,
 			[key]: value,
@@ -86,7 +94,7 @@ export const WorkflowSettings = ({ onClose }: WorkflowSettingsProps) => {
 			name: "On",
 			render: (hide: boolean) => (
 				<BaseSetting
-					settingName="On"
+					settingName="New Events"
 					settingDetails="To automatically trigger a workflow, use on to define which events can cause the workflow to run"
 					style={{ display: hide ? "inline-table" : "none" }}
 				>
@@ -200,7 +208,10 @@ export const WorkflowSettings = ({ onClose }: WorkflowSettingsProps) => {
 							onClick={() => setSettingType("run-name")}
 							selected={settingType === "run-name"}
 						>
-							<ListItemText primary="Run name" />
+							<SideBarLabel
+								primary="Run name"
+								hasValue={!!currentWorkflow["run-name"]}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -208,7 +219,13 @@ export const WorkflowSettings = ({ onClose }: WorkflowSettingsProps) => {
 							onClick={() => setSettingType("on")}
 							selected={settingType === "on"}
 						>
-							<ListItemText primary="On" />
+							<SideBarLabel
+								primary="On"
+								hasValue={
+									!!currentWorkflow["on"] &&
+									!!Object.keys(currentWorkflow["on"]).length
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -216,7 +233,13 @@ export const WorkflowSettings = ({ onClose }: WorkflowSettingsProps) => {
 							onClick={() => setSettingType("permissions")}
 							selected={settingType === "permissions"}
 						>
-							<ListItemText primary="Permissions" />
+							<SideBarLabel
+								primary="Permissions"
+								hasValue={
+									!!currentWorkflow["permissions"] &&
+									!!Object.keys(currentWorkflow["permissions"]).length
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -224,7 +247,13 @@ export const WorkflowSettings = ({ onClose }: WorkflowSettingsProps) => {
 							onClick={() => setSettingType("env")}
 							selected={settingType === "env"}
 						>
-							<ListItemText primary="Env" />
+							<SideBarLabel
+								primary="Env"
+								hasValue={
+									!!currentWorkflow["env"] &&
+									!!Object.keys(currentWorkflow["env"]).length
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -232,7 +261,13 @@ export const WorkflowSettings = ({ onClose }: WorkflowSettingsProps) => {
 							onClick={() => setSettingType("concurrency")}
 							selected={settingType === "concurrency"}
 						>
-							<ListItemText primary="Concurrency" />
+							<SideBarLabel
+								primary="Concurrency"
+								hasValue={
+									!!currentWorkflow["concurrency"] &&
+									!!Object.keys(currentWorkflow["concurrency"]).length
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -240,7 +275,13 @@ export const WorkflowSettings = ({ onClose }: WorkflowSettingsProps) => {
 							onClick={() => setSettingType("defaults")}
 							selected={settingType === "defaults"}
 						>
-							<ListItemText primary="Defaults" />
+							<SideBarLabel
+								primary="Defaults"
+								hasValue={
+									!!currentWorkflow["defaults"] &&
+									!!Object.keys(currentWorkflow["defaults"]).length
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 				</List>

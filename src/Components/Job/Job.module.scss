@@ -31,6 +31,15 @@
 		color: $colorTextLight;
 	}
 
+	.expand {
+		transition: 0.2s;
+		color: $colorText;
+	}
+
+	.expand:hover {
+		color: $colorTextLight;
+	}
+
 	.jobName {
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -58,7 +67,7 @@
 
 	.main {
 		flex: 80%;
-		overflow: none;
+		overflow: auto;
 		height: 100%;
 		display: flex;
 		flex-direction: column;

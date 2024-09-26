@@ -4,7 +4,6 @@ import {
 	List,
 	ListItem,
 	ListItemButton,
-	ListItemText,
 	ToggleButton,
 	ToggleButtonGroup,
 } from "@mui/material";
@@ -24,6 +23,7 @@ import { ObjectSetting } from "../Settings/ObjectSetting";
 import { PermissionsSetting } from "../Settings/PermissionsSetting";
 import { RunsOnSetting } from "../Settings/RunsOnSetting";
 import { StringSetting } from "../Settings/StringSetting";
+import { SideBarLabel } from "../UI/SideBarLabel/SideBarLabel";
 import YamlEditor from "../UI/YAMLEditor";
 import style from "./Job.module.scss";
 
@@ -95,7 +95,15 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 		onClose();
 	};
 
-	const updateCurrentJob = (key: string, value: any) => {
+	const updateCurrentJob = (key: keyof NormalJob, value: any) => {
+		// If value is undefined or an empty string or an empty object remove the key from the object
+		if (!value || (typeof value === "object" && !Object.keys(value).length)) {
+			const newValue = { ...currentJob };
+			delete newValue[key];
+			setCurrentJob(newValue);
+			return;
+		}
+
 		setCurrentJob((prev) => ({
 			...prev,
 			[key]: value,
@@ -386,7 +394,17 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 							onClick={() => setSettingType("basic")}
 							selected={settingType === "basic"}
 						>
-							<ListItemText primary="Basic" />
+							<SideBarLabel
+								primary="Basic"
+								hasValue={
+									!!currentJob["if"] ||
+									!!currentJob["timeout-minutes"] ||
+									!!currentJob["needs"] ||
+									!!currentJob["runs-on"] ||
+									!!currentJob["uses"] ||
+									!!currentJob["continue-on-error"]
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -394,7 +412,10 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 							onClick={() => setSettingType("permissions")}
 							selected={settingType === "permissions"}
 						>
-							<ListItemText primary="Permissions" />
+							<SideBarLabel
+								primary="Permissions"
+								hasValue={!!currentJob["permissions"]}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -402,7 +423,13 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 							onClick={() => setSettingType("with")}
 							selected={settingType === "with"}
 						>
-							<ListItemText primary="With" />
+							<SideBarLabel
+								primary="With"
+								hasValue={
+									!!currentJob["with"] &&
+									!!Object.keys(currentJob["with"]).length
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -410,7 +437,12 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 							onClick={() => setSettingType("env")}
 							selected={settingType === "env"}
 						>
-							<ListItemText primary="Env" />
+							<SideBarLabel
+								primary="Env"
+								hasValue={
+									!!currentJob["env"] && !!Object.keys(currentJob["env"]).length
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -418,7 +450,10 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 							onClick={() => setSettingType("environment")}
 							selected={settingType === "environment"}
 						>
-							<ListItemText primary="Environment" />
+							<SideBarLabel
+								primary="Environment"
+								hasValue={!!currentJob["environment"]}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -426,7 +461,13 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 							onClick={() => setSettingType("concurrency")}
 							selected={settingType === "concurrency"}
 						>
-							<ListItemText primary="Concurrency" />
+							<SideBarLabel
+								primary="Concurrency"
+								hasValue={
+									!!currentJob["concurrency"] &&
+									!!Object.keys(currentJob["concurrency"]).length
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -434,7 +475,13 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 							onClick={() => setSettingType("outputs")}
 							selected={settingType === "outputs"}
 						>
-							<ListItemText primary="Outputs" />
+							<SideBarLabel
+								primary="Outputs"
+								hasValue={
+									!!currentJob["outputs"] &&
+									!!Object.keys(currentJob["outputs"]).length
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 					<ListItem disablePadding>
@@ -442,7 +489,13 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 							onClick={() => setSettingType("defaults")}
 							selected={settingType === "defaults"}
 						>
-							<ListItemText primary="Defaults" />
+							<SideBarLabel
+								primary="Defaults"
+								hasValue={
+									!!currentJob["defaults"] &&
+									!!Object.keys(currentJob["defaults"]).length
+								}
+							/>
 						</ListItemButton>
 					</ListItem>
 				</List>
