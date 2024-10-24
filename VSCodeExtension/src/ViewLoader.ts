@@ -27,6 +27,43 @@ export default class ViewLoader {
 					fs.writeFileSync(message.data.fileUri, message.data.workflow, "utf8");
 				}
 
+				if (message.action === "deleteStep") {
+					vscode.window
+						.showInformationMessage(
+							"Do you want to do remove this step?",
+							"Yes",
+							"No",
+						)
+						.then((answer) => {
+							if (answer === "Yes") {
+								this._panel?.webview.postMessage({
+									action: "deleteStep",
+									jobId: message.jobId,
+									id: message.id,
+								});
+							}
+
+						});
+				}
+
+				if (message.action === "deleteJob") {
+					vscode.window
+						.showInformationMessage(
+							"Do you want to remove this job?",
+							"Yes",
+							"No",
+						)
+						.then((answer) => {
+							if (answer === "Yes") {
+								this._panel?.webview.postMessage({
+									action: "deleteJob",
+									id: message.id,
+								});
+							}
+
+						});
+				}
+
 				if (message.ready) {
 					this._panel?.webview.postMessage({
 						localConfig: context.globalState.get("localConfig"),
@@ -34,6 +71,7 @@ export default class ViewLoader {
 
 					if (this.isCorrectFileType(vscode.window.activeTextEditor?.document.languageId)) {
 						this._panel?.webview.postMessage({
+							action: "open",
 							template: vscode.window.activeTextEditor?.document.getText(),
 						});
 					}
@@ -53,6 +91,7 @@ export default class ViewLoader {
 
 					if (fileContent) {
 						this._panel?.webview.postMessage({
+							action: "open",
 							template: fileContent,
 							fileUri,
 						});
@@ -65,6 +104,7 @@ export default class ViewLoader {
 
 						if (fileContent) {
 							this._panel?.webview.postMessage({
+								action: "open",
 								template: fileContent,
 								fileUri: this.fileUri,
 							});
@@ -73,6 +113,7 @@ export default class ViewLoader {
 
 					if (this.isCorrectFileType(textEditor?.document.languageId)) {
 						this._panel?.webview.postMessage({
+							action: "open",
 							template: textEditor?.document.getText(),
 							fileUri: textEditor?.document.uri,
 						});
@@ -88,6 +129,7 @@ export default class ViewLoader {
 						this.timer = setTimeout(
 							() =>
 								this._panel?.webview.postMessage({
+									action: "open",
 									template: e.document.getText(),
 									fileUri: e.document.uri,
 								}),

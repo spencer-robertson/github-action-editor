@@ -21,9 +21,11 @@ interface JobProps {
 	data: {
 		jobId: string;
 		job: NormalJob;
-		isOpenSettings: boolean;
+		isOpenJobSettings: boolean;
 		isOpenSteps: boolean;
-		setOpenSettings: Dispatch<SetStateAction<OpenJobSettingsState | undefined>>;
+		setOpenJobSettings: Dispatch<
+			SetStateAction<OpenJobSettingsState | undefined>
+		>;
 		setOpenSteps: Dispatch<SetStateAction<OpenJobSettingsState | undefined>>;
 		setOpenStepSettings: Dispatch<
 			SetStateAction<OpenStepSettingsState | undefined>
@@ -35,9 +37,9 @@ export const Job = (props: JobProps) => {
 	const {
 		jobId,
 		job,
-		isOpenSettings,
+		isOpenJobSettings,
 		isOpenSteps,
-		setOpenSettings,
+		setOpenJobSettings,
 		setOpenStepSettings,
 		setOpenSteps,
 	} = props.data;
@@ -57,7 +59,10 @@ export const Job = (props: JobProps) => {
 
 			<Grow
 				in={true}
-				style={{ transformOrigin: "0 0 0", visibility: "visible" }}
+				style={{
+					transformOrigin: "0 0 0",
+					visibility: "visible",
+				}}
 				timeout={300}
 			>
 				<Card
@@ -81,8 +86,8 @@ export const Job = (props: JobProps) => {
 								title="Settings"
 								onClick={(e) => {
 									e.stopPropagation();
-									setOpenSettings(
-										isOpenSettings ? undefined : { job: job, id: jobId },
+									setOpenJobSettings(
+										isOpenJobSettings ? undefined : { job: job, id: jobId },
 									);
 
 									setOpenStepSettings(undefined);
@@ -95,7 +100,7 @@ export const Job = (props: JobProps) => {
 								<SettingsIcon
 									className={cn(
 										style.settingButton,
-										isOpenSettings && style.openSettings,
+										isOpenJobSettings && style.openSettings,
 									)}
 								/>
 							</IconButton>
@@ -113,6 +118,7 @@ export const Job = (props: JobProps) => {
 								}}
 								aria-expanded={isOpenSteps}
 								aria-label="show more"
+								className={style.expand}
 							>
 								<ExpandMoreIcon />
 							</ExpandMore>
@@ -123,7 +129,6 @@ export const Job = (props: JobProps) => {
 							job={job}
 							id={jobId}
 							setOpenStepSettings={setOpenStepSettings}
-							setOpenSettings={setOpenSettings}
 						/>
 					</Collapse>
 				</Card>

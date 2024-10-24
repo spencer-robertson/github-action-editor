@@ -1,14 +1,7 @@
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
-import {
-	forwardRef,
-	useEffect,
-	useImperativeHandle,
-	useRef,
-	useState,
-} from "react";
-import { SettingsRef } from "../../types";
+import { useState } from "react";
 import { Environment } from "../../types/workflowTypes";
 import { a11yProps, CustomTabPanel } from "../UI/TabPanel";
 import { BaseSetting } from "./BaseSetting";
@@ -16,70 +9,77 @@ import { StringSetting } from "./StringSetting";
 
 interface EnvironmentSettingProps {
 	value?: string | Environment;
+	onChange?: (value: string | Environment | undefined) => void;
 }
 
-export const EnvironmentSetting = forwardRef(
-	({ value }: EnvironmentSettingProps, ref) => {
-		const [currentValue, setCurrentValue] = useState(value);
-		const [tab, setTab] = useState(0);
+export const EnvironmentSetting = ({
+	value,
+	onChange,
+}: EnvironmentSettingProps) => {
+	const [tab, setTab] = useState(0);
 
-		const plainRef = useRef<SettingsRef>(null);
-		const nameRef = useRef<SettingsRef>(null);
-		const urlRef = useRef<SettingsRef>(null);
+	const handleChange = (_: React.SyntheticEvent, newTab: number) => {
+		setTab(newTab);
+	};
 
-		useImperativeHandle(ref, () => ({ getValue }));
-		const getValue = () => {
-			const plainValue = plainRef?.current?.getValue();
-			return plainValue;
-		};
+	const isPlainValue = typeof value === "string";
+	const isObjectValue = typeof value === "object";
 
-		useEffect(() => {
-			setCurrentValue(value);
-		}, [value]);
-
-		const handleChange = (event: React.SyntheticEvent, newTab: number) => {
-			setTab(newTab);
-		};
-
-		const isPlainValue = typeof currentValue === "string";
-		const isObjectValue = typeof currentValue === "object";
-
-		return (
-			<div>
-				<Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-					<Tabs
-						value={tab}
-						onChange={handleChange}
-						aria-label="basic tabs example"
-					>
-						<Tab label="Single environment name" {...a11yProps(0)} />
-						<Tab label="Environment name and URL" {...a11yProps(1)} />
-					</Tabs>
-				</Box>
-				<CustomTabPanel value={tab} index={0}>
+	return (
+		<div>
+			<Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+				<Tabs
+					value={tab}
+					onChange={handleChange}
+					aria-label="basic tabs example"
+				>
+					<Tab label="Single environment name" {...a11yProps(0)} />
+					<Tab label="Environment name and URL" {...a11yProps(1)} />
+				</Tabs>
+			</Box>
+			<CustomTabPanel value={tab} index={0}>
+				<StringSetting
+					value={isPlainValue ? value : undefined}
+					name="Environment"
+					onChange={(newValue) => {
+						if (typeof newValue === "string") {
+							onChange?.(newValue);
+						}
+					}}
+				/>
+			</CustomTabPanel>
+			<CustomTabPanel value={tab} index={1}>
+				<BaseSetting settingName="Name">
 					<StringSetting
-						value={isPlainValue ? currentValue : undefined}
-						name="Environment"
-						ref={plainRef}
+						value={isObjectValue ? value.name : undefined}
+						name="Name"
+						onChange={(newValue) => {
+							if (typeof newValue === "string") {
+								if (typeof value === "string") {
+									onChange?.({ name: newValue, url: "" });
+								} else {
+									onChange?.({ ...value, name: newValue });
+								}
+							}
+						}}
 					/>
-				</CustomTabPanel>
-				<CustomTabPanel value={tab} index={1}>
-					<BaseSetting settingName="Name">
-						<StringSetting
-							value={isObjectValue ? currentValue.name : undefined}
-							name="Name"
-							ref={nameRef}
-						/>
-					</BaseSetting>
-					<BaseSetting settingName="URL">
-						<StringSetting
-							value={isObjectValue ? currentValue.url : undefined}
-							name="URL"
-							ref={urlRef}
-						/>
-					</BaseSetting>
-				</CustomTabPanel>
-			</div>
-		);
-	},
-);
+				</BaseSetting>
+				<BaseSetting settingName="URL">
+					<StringSetting
+						value={isObjectValue ? value.url : undefined}
+						name="URL"
+						onChange={(newValue) => {
+							if (typeof newValue === "string") {
+								if (typeof value === "string") {
+									onChange?.({ name: "", url: newValue });
+								} else {
+									onChange?.({ ...value, url: newValue });
+								}
+							}
+						}}
+					/>
+				</BaseSetting>
+			</CustomTabPanel>
+		</div>
+	);
+};

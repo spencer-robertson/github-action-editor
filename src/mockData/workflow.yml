@@ -1,32 +1,52 @@
-name: Build Github actions editor
+name: Run stack status check
+
 on:
-  push:
-    branches:
-      - master
-  workflow_dispatch: null
+  schedule:
+    # We want to check the stack status of testing or staging
+    # in the hour of 0AM and 7AM UTC which is 8AM and 3PM in Perth
+    # from Monday to Friday
+    - cron: "0 0,7 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      stack:
+        type: choice
+        description: "Stack name for stack status checking"
+        default: "testing"
+        options:
+          - testing
+          - staging
+
 permissions:
-  id-token: write
-  contents: write
+  id-token: write # required to use OIDC authentication
+  contents: read
   actions: write
-  packages: read
+
+env:
+  AWS_DEFAULT_REGION: ap-southeast-2
+  TERM: xterm
+
 jobs:
-  build:
-    name: Build
+  run:
+    name: Run stack status check
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
-      - name: Checkout3
-        uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
+      - name: Configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          node-version: "16"
-      - name: Install dependencies
-        run: npm ci
-      - name: Build VSCode extension
-        run: npm run vscode
-      - name: Publish VSCode extension
-        run: |
-          cd VSCodeExtension
-          npx vsce publish --githubBranch master
+          role-to-assume: ${{ secrets.ACTIONS_IAM_ROLE_ARN }}
+          role-duration-seconds: 1800
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Run stack status check and then report if stack is still running to Slack
         env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          SLACK_RC_KEY: ${{ secrets.SLACK_RC_KEY }}
+        run: |
+          aws cloudformation describe-stacks --stack-name ${{ inputs.stack || 'testing' }}-v3 >/dev/null
+          if [ $? -eq 0 ]; then
+            MESSAGE="${{ inputs.stack || 'testing' }} stack still running, please turn off ${{ inputs.stack || 'testing' }} stack when you have finished using"
+            echo $MESSAGE
+            curl -F "text=$MESSAGE" -F channel=C01BACC0E2Y -H "Authorization: Bearer $SLACK_RC_KEY" https://slack.com/api/chat.postMessage
+          else
+            echo "${{ inputs.stack || 'testing' }} stack is not running!"
+          fi

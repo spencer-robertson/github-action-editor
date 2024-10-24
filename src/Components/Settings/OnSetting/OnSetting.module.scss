@@ -1,0 +1,15 @@
+@import "../../../common";
+
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.cardContent.cardContent {
+	padding-top: 0px;
+}
+
+.selected.selected {
+	background-color: $colorBackground;
+}

@@ -703,9 +703,7 @@ export interface Workflow {
 	 * The name of the GitHub event that triggers the workflow. You can provide a single event string, array of events, array of event types, or an event configuration map that schedules a workflow or restricts the execution of a workflow to specific files, tags, or branch changes. For a list of available events, see https://help.github.com/en/github/automating-your-workflow-with-github-actions/events-that-trigger-workflows.
 	 */
 	on:
-	| Event
-	| [Event, ...Event[]]
-	| {
+	{
 		branch_protection_rule?: EventObject;
 		check_run?: EventObject1;
 		check_suite?: EventObject2;
@@ -895,15 +893,14 @@ export interface Workflow {
 	env?:
 	| {
 		[k: string]: string | number | boolean;
-	}
-	| StringContainingExpressionSyntax;
+	};
 	defaults?: Defaults;
 	/**
 	 * Concurrency ensures that only a single job or workflow using the same concurrency group will run at a time. A concurrency group can be any string or expression. The expression can use any context except for the secrets context.
 	 * You can also specify concurrency at the workflow level.
 	 * When a concurrent job or workflow is queued, if another job or workflow using the same concurrency group in the repository is in progress, the queued job or workflow will be pending. Any previously pending job or workflow in the concurrency group will be canceled. To also cancel any currently running job or workflow in the same concurrency group, specify cancel-in-progress: true.
 	 */
-	concurrency?: string | Concurrency;
+	concurrency?: Concurrency;
 	/**
 	 * A workflow run is made up of one or more jobs. Jobs run in parallel by default. To run jobs sequentially, you can define dependencies on other jobs using the jobs.<job_id>.needs keyword.
 	 * Each job runs in a fresh instance of the virtual environment specified by runs-on.
@@ -1128,7 +1125,7 @@ export interface Environment {
 	/**
 	 * The name of the environment configured in the repo.
 	 */
-	name: string;
+	name?: string;
 	/**
 	 * A deployment URL
 	 */

@@ -1,7 +1,7 @@
 import { IconButton } from "@mui/material";
 import { Dispatch, SetStateAction } from "react";
 import { Settings } from "react-feather";
-import { OpenJobSettingsState, OpenStepSettingsState } from "../../types";
+import { OpenStepSettingsState } from "../../types";
 import { Step as StepType } from "../../types/workflowTypes";
 import style from "./Steps.module.scss";
 
@@ -11,21 +11,14 @@ interface StepProps {
 	setOpenStepSettings: Dispatch<
 		SetStateAction<OpenStepSettingsState | undefined>
 	>;
-	setOpenSettings: Dispatch<SetStateAction<OpenJobSettingsState | undefined>>;
 }
 
-export const Step = ({
-	step,
-	id,
-	setOpenStepSettings,
-	setOpenSettings,
-}: StepProps) => {
+export const Step = ({ step, id, setOpenStepSettings }: StepProps) => {
 	const stepId = step.id || step.name || step.run || step.uses;
 
 	const onClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		e.preventDefault();
-		setOpenSettings(undefined);
 
 		setOpenStepSettings({
 			step: step,
