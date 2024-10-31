@@ -86,7 +86,6 @@ export const App = () => {
 
 	const { deepestRoutes, needsObj } = useNeedsConnections(workflow);
 	const [vscodeTheme, setVscodeTheme] = useState<"light" | "dark">();
-	console.log("vscodeTheme:", vscodeTheme);
 
 	const theme = createTheme({
 		palette: {
@@ -131,7 +130,6 @@ export const App = () => {
 
 	useEffect(() => {
 		const darkMode = document.body.classList.contains("vscode-dark");
-		console.log("darkMode:", darkMode);
 		setTheme(darkMode, undefined);
 
 		setVscodeTheme(darkMode ? "dark" : "light");

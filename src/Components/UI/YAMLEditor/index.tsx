@@ -1,6 +1,8 @@
 import { LanguageSupport, StreamLanguage } from "@codemirror/language";
 import * as yamlMode from "@codemirror/legacy-modes/mode/yaml";
 import { linter, lintGutter } from "@codemirror/lint";
+import { useTheme } from "@mui/material";
+import { vscodeDark, vscodeLight } from "@uiw/codemirror-theme-vscode";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { basicSetup } from "codemirror";
 import { createRef, useEffect, useState } from "react";
@@ -30,7 +32,7 @@ export const YamlEditor = ({ word, value, onChange }: YamlEditorProps) => {
 	const [currentValue] = useState(YAML.stringify(value));
 	const newWord = word + ":";
 	const ref = createRef<ReactCodeMirrorRef>();
-
+	const { palette } = useTheme();
 	const yaml = new LanguageSupport(StreamLanguage.define(yamlMode.yaml));
 
 	const yamlLinter = linter((view) => {
@@ -94,6 +96,7 @@ export const YamlEditor = ({ word, value, onChange }: YamlEditorProps) => {
 			ref={ref}
 			value={currentValue}
 			extensions={[yaml, basicSetup, lintGutter(), yamlLinter]}
+			theme={palette.mode === "dark" ? vscodeDark : vscodeLight}
 			onChange={(value) => {
 				onChange(YAML.parse(value));
 			}}
