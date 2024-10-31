@@ -2,7 +2,7 @@
 	"name": "github-action-editor",
 	"displayName": "Github action editor",
 	"description": "Vscode extension that allows for visual editing of Github action YAML files",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"author": "Spencer Robertson",
 	"license": "MIT",
 	"repository": "https://github.com/spencer-robertson/github-action-editor",
