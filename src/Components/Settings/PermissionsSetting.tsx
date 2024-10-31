@@ -1,3 +1,4 @@
+import { Tooltip } from "@mui/material";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { Info } from "react-feather";
@@ -6,7 +7,6 @@ import {
 	PermissionsEvent,
 	PermissionsLevel,
 } from "../../types/workflowTypes";
-import { BootstrapTooltip } from "./BaseSetting";
 import style from "./PermissionsSetting.module.scss";
 
 interface PermissionsSettingProps {
@@ -148,9 +148,9 @@ const PermissionSetting = ({
 			<div className={style.permissionNameContainer}>
 				<div className={style.permissionName}>{permissionName}</div>
 				{permissionDetails && (
-					<BootstrapTooltip title={permissionDetails} placement="right">
+					<Tooltip arrow title={permissionDetails} placement="right">
 						<Info size={15} />
-					</BootstrapTooltip>
+					</Tooltip>
 				)}
 			</div>
 			<ToggleButtonGroup

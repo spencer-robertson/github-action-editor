@@ -6,7 +6,16 @@ import "@fontsource/roboto/700.css";
 import { useEffect, useMemo, useState } from "react";
 import YAML from "yaml";
 
-import { Alert, Box, Button, IconButton, Modal, Snackbar } from "@mui/material";
+import {
+	Alert,
+	Box,
+	Button,
+	createTheme,
+	IconButton,
+	Modal,
+	Snackbar,
+	ThemeProvider,
+} from "@mui/material";
 import {
 	Connection,
 	Controls,
@@ -76,6 +85,14 @@ export const App = () => {
 	const [fileUri, setFileUri] = useState<Uri | undefined>(undefined);
 
 	const { deepestRoutes, needsObj } = useNeedsConnections(workflow);
+	const [vscodeTheme, setVscodeTheme] = useState<"light" | "dark">();
+	console.log("vscodeTheme:", vscodeTheme);
+
+	const theme = createTheme({
+		palette: {
+			mode: vscodeTheme,
+		},
+	});
 
 	const maxDepth = deepestRoutes ? Math.max(...deepestRoutes?.values()) + 1 : 1;
 
@@ -113,11 +130,11 @@ export const App = () => {
 	}, [workflowChanged]);
 
 	useEffect(() => {
-		setTheme(
-			document.body.classList.contains("vscode-dark") ||
-				document.body.classList.contains("vscode-high-contrast"),
-			undefined,
-		);
+		const darkMode = document.body.classList.contains("vscode-dark");
+		console.log("darkMode:", darkMode);
+		setTheme(darkMode, undefined);
+
+		setVscodeTheme(darkMode ? "dark" : "light");
 
 		if (deepestRoutes) {
 			const root = document.documentElement;
@@ -526,107 +543,109 @@ export const App = () => {
 	const nodes = [...neededNodes, ...unNeededNodes];
 
 	return (
-		<div style={{ height: "100vh" }}>
-			<Snackbar
-				open={saved}
-				onClose={() => setSaved(false)}
-				key={"saved"}
-				autoHideDuration={1200}
-			>
-				<Alert
+		<ThemeProvider theme={theme}>
+			<div style={{ height: "100vh" }}>
+				<Snackbar
+					open={saved}
 					onClose={() => setSaved(false)}
-					severity="success"
-					variant="filled"
-					className={style.snack}
+					key={"saved"}
+					autoHideDuration={1200}
 				>
-					{workflowChanged.at(-1)?.message}
-				</Alert>
-			</Snackbar>
-
-			<div className={style.header}>
-				<div className={style.title}>{workflow.name}</div>
-				<div className={style.actions}>
-					<IconButton
-						edge="start"
-						aria-label="settings"
-						title="Settings"
-						onClick={(e) => {
-							e.stopPropagation();
-							setOpenWorkflowSettings(true);
-
-							setOpenStepSettings(undefined);
-						}}
-						sx={{
-							marginLeft: "0px",
-							marginRight: 1,
-						}}
+					<Alert
+						onClose={() => setSaved(false)}
+						severity="success"
+						variant="filled"
+						className={style.snack}
 					>
-						<SettingsIcon className={cn(style.settingButton)} />
-					</IconButton>
-					<Button variant="outlined" onClick={addJob} size="large">
-						Add job
-					</Button>
-					<Button
-						variant="contained"
-						onClick={saveWorkflow}
-						size="large"
-						className={style.saveButton}
-					>
-						Save workflow
-					</Button>
+						{workflowChanged.at(-1)?.message}
+					</Alert>
+				</Snackbar>
+
+				<div className={style.header}>
+					<div className={style.title}>{workflow.name}</div>
+					<div className={style.actions}>
+						<IconButton
+							edge="start"
+							aria-label="settings"
+							title="Settings"
+							onClick={(e) => {
+								e.stopPropagation();
+								setOpenWorkflowSettings(true);
+
+								setOpenStepSettings(undefined);
+							}}
+							sx={{
+								marginLeft: "0px",
+								marginRight: 1,
+							}}
+						>
+							<SettingsIcon className={cn(style.settingButton)} />
+						</IconButton>
+						<Button variant="outlined" onClick={addJob} size="large">
+							Add job
+						</Button>
+						<Button
+							variant="contained"
+							onClick={saveWorkflow}
+							size="large"
+							className={style.saveButton}
+						>
+							Save workflow
+						</Button>
+					</div>
 				</div>
-			</div>
 
-			<WorkflowContext.Provider
-				value={{ workflow, setWorkflow, workflowChanged, setWorkflowChanged }}
-			>
-				<ReactFlow
-					nodes={nodes}
-					edges={edges}
-					nodeTypes={nodeTypes}
-					edgeTypes={edgeTypes}
-					onConnect={onConnect}
-					onEdgesChange={onDisconnect}
-					fitView
+				<WorkflowContext.Provider
+					value={{ workflow, setWorkflow, workflowChanged, setWorkflowChanged }}
 				>
-					<Controls showInteractive={false} />
-				</ReactFlow>
-				<Modal
-					open={
-						!!openWorkflowSettings || !!openJobSettings || !!openStepSettings
-					}
-					onClose={() => {
-						setOpenJobSettings(undefined);
-						setOpenStepSettings(undefined);
-						setOpenWorkflowSettings(false);
-					}}
-					aria-labelledby="modal-modal-title"
-					aria-describedby="modal-modal-description"
-				>
-					<Box sx={boxStyle} className={style.modal}>
-						{openWorkflowSettings && (
-							<WorkflowSettings
-								onClose={() => setOpenWorkflowSettings(false)}
-							/>
-						)}
-						{openJobSettings && (
-							<JobSettings
-								job={openJobSettings?.job}
-								id={openJobSettings?.id}
-								onClose={() => setOpenJobSettings(undefined)}
-							/>
-						)}
-						{openStepSettings && (
-							<StepSettings
-								step={openStepSettings.step}
-								id={openStepSettings.stepId}
-								jobId={openStepSettings.jobId}
-								onClose={() => setOpenStepSettings(undefined)}
-							/>
-						)}
-					</Box>
-				</Modal>
-			</WorkflowContext.Provider>
-		</div>
+					<ReactFlow
+						nodes={nodes}
+						edges={edges}
+						nodeTypes={nodeTypes}
+						edgeTypes={edgeTypes}
+						onConnect={onConnect}
+						onEdgesChange={onDisconnect}
+						fitView
+					>
+						<Controls showInteractive={false} className={style.controls} />
+					</ReactFlow>
+					<Modal
+						open={
+							!!openWorkflowSettings || !!openJobSettings || !!openStepSettings
+						}
+						onClose={() => {
+							setOpenJobSettings(undefined);
+							setOpenStepSettings(undefined);
+							setOpenWorkflowSettings(false);
+						}}
+						aria-labelledby="modal-modal-title"
+						aria-describedby="modal-modal-description"
+					>
+						<Box sx={boxStyle}>
+							{openWorkflowSettings && (
+								<WorkflowSettings
+									onClose={() => setOpenWorkflowSettings(false)}
+								/>
+							)}
+							{openJobSettings && (
+								<JobSettings
+									job={openJobSettings?.job}
+									id={openJobSettings?.id}
+									onClose={() => setOpenJobSettings(undefined)}
+								/>
+							)}
+							{openStepSettings && (
+								<StepSettings
+									step={openStepSettings.step}
+									id={openStepSettings.stepId}
+									jobId={openStepSettings.jobId}
+									onClose={() => setOpenStepSettings(undefined)}
+								/>
+							)}
+						</Box>
+					</Modal>
+				</WorkflowContext.Provider>
+			</div>
+		</ThemeProvider>
 	);
 };

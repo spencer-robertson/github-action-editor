@@ -1,12 +1,5 @@
 import { DeleteForever } from "@mui/icons-material";
-import {
-	IconButton,
-	List,
-	ListItem,
-	ListItemButton,
-	ToggleButton,
-	ToggleButtonGroup,
-} from "@mui/material";
+import { IconButton, List, ListItem, ListItemButton } from "@mui/material";
 import { useContext, useState } from "react";
 import { vscode } from "../../App";
 import { WorkflowContext } from "../../Contexts/WorkflowContext";
@@ -19,6 +12,7 @@ import { NumberSetting } from "../Settings/NumberSetting";
 import { ObjectSetting } from "../Settings/ObjectSetting";
 import { StringSetting } from "../Settings/StringSetting";
 import { SideBarLabel } from "../UI/SideBarLabel/SideBarLabel";
+import { ToggleButtons } from "../UI/ToggleButtons";
 import YamlEditor from "../UI/YAMLEditor";
 import style from "./Steps.module.scss";
 
@@ -320,17 +314,7 @@ export const StepSettings = ({
 	return (
 		<div className={style.container} key={id}>
 			<div className={style.sidebar}>
-				<ToggleButtonGroup
-					color="primary"
-					value={yamlEditor ? "android" : "web"}
-					exclusive
-					onChange={(_, value) => setYamlEditor(value === "android")}
-					aria-label="Platform"
-					fullWidth
-				>
-					<ToggleButton value="web">UI</ToggleButton>
-					<ToggleButton value="android">YAML</ToggleButton>
-				</ToggleButtonGroup>
+				<ToggleButtons yamlEditor={yamlEditor} setYamlEditor={setYamlEditor} />
 				<List>
 					<ListItem disablePadding>
 						<ListItemButton

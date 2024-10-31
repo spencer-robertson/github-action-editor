@@ -1,5 +1,5 @@
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-import { styled, Tooltip, tooltipClasses, TooltipProps } from "@mui/material";
+import { Tooltip } from "@mui/material";
 import {
 	cloneElement,
 	CSSProperties,
@@ -8,20 +8,6 @@ import {
 	useState,
 } from "react";
 import baseStyle from "./BaseSetting.module.scss";
-
-export const BootstrapTooltip = styled(
-	({ className, ...props }: TooltipProps) => (
-		<Tooltip {...props} arrow classes={{ popper: className }} />
-	),
-)(() => ({
-	[`& .${tooltipClasses.arrow}`]: {
-		color: "white !important",
-	},
-	[`& .${tooltipClasses.tooltip}`]: {
-		backgroundColor: "lightgray",
-		maxWidth: 400,
-	},
-}));
 
 interface BaseSettingProps {
 	settingName?: string;
@@ -46,9 +32,9 @@ export const BaseSetting = ({
 					<div className={baseStyle.settingName}>{settingName}</div>
 				)}
 				{settingDetails && (
-					<BootstrapTooltip title={settingDetails} placement="right">
+					<Tooltip arrow title={settingDetails} placement="right">
 						<HelpOutlineOutlinedIcon sx={{ fontSize: 15 }} />
-					</BootstrapTooltip>
+					</Tooltip>
 				)}
 			</div>
 			<div>{newChildren}</div>
