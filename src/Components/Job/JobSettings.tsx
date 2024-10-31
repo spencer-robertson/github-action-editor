@@ -1,12 +1,5 @@
 import { DeleteOutline } from "@mui/icons-material";
-import {
-	IconButton,
-	List,
-	ListItem,
-	ListItemButton,
-	ToggleButton,
-	ToggleButtonGroup,
-} from "@mui/material";
+import { IconButton, List, ListItem, ListItemButton } from "@mui/material";
 import { useContext, useState } from "react";
 import { vscode } from "../../App";
 import { WorkflowContext } from "../../Contexts/WorkflowContext";
@@ -24,6 +17,7 @@ import { PermissionsSetting } from "../Settings/PermissionsSetting";
 import { RunsOnSetting } from "../Settings/RunsOnSetting";
 import { StringSetting } from "../Settings/StringSetting";
 import { SideBarLabel } from "../UI/SideBarLabel/SideBarLabel";
+import { ToggleButtons } from "../UI/ToggleButtons";
 import YamlEditor from "../UI/YAMLEditor";
 import style from "./Job.module.scss";
 
@@ -377,17 +371,7 @@ export const JobSettings = ({ job, id, onClose }: JobSettingsProps) => {
 	return (
 		<div className={style.container} key={id}>
 			<div className={style.sidebar}>
-				<ToggleButtonGroup
-					color="primary"
-					value={yamlEditor ? "android" : "web"}
-					exclusive
-					onChange={(_, value) => setYamlEditor(value === "android")}
-					aria-label="Platform"
-					fullWidth
-				>
-					<ToggleButton value="web">UI</ToggleButton>
-					<ToggleButton value="android">YAML</ToggleButton>
-				</ToggleButtonGroup>
+				<ToggleButtons yamlEditor={yamlEditor} setYamlEditor={setYamlEditor} />
 				<List>
 					<ListItem disablePadding>
 						<ListItemButton

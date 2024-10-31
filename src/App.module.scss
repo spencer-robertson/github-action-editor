@@ -98,33 +98,8 @@ body {
 	}
 }
 
-.modal.modal {
-	background-color: $colorForeground;
-}
-
-.saveButton.saveButton {
-	color: white !important;
-}
-
 .snack.snack {
 	width: "100%";
-
-	> div {
-		color: white !important;
-
-		> svg {
-			> path {
-				color: white !important;
-			}
-		}
-		> button {
-			> svg {
-				> path {
-					color: white !important;
-				}
-			}
-		}
-	}
 }
 
 .unNeededContainer {
@@ -135,5 +110,12 @@ body {
 }
 
 .edgeButton {
-	background-color: $colorBackground;
+	// background-color: $colorBackground;
+}
+
+.controls {
+	> button {
+		background-color: $colorForeground;
+		color: $colorText;
+	}
 }

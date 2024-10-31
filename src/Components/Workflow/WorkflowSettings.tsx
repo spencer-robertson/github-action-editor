@@ -1,10 +1,4 @@
-import {
-	List,
-	ListItem,
-	ListItemButton,
-	ToggleButton,
-	ToggleButtonGroup,
-} from "@mui/material";
+import { List, ListItem, ListItemButton } from "@mui/material";
 import { useContext, useState } from "react";
 import { WorkflowContext } from "../../Contexts/WorkflowContext";
 import { Workflow } from "../../types/workflowTypes";
@@ -17,6 +11,7 @@ import { OnSetting } from "../Settings/OnSetting/OnSetting";
 import { PermissionsSetting } from "../Settings/PermissionsSetting";
 import { StringSetting } from "../Settings/StringSetting";
 import { SideBarLabel } from "../UI/SideBarLabel/SideBarLabel";
+import { ToggleButtons } from "../UI/ToggleButtons";
 import YamlEditor from "../UI/YAMLEditor";
 import style from "./Workflow.module.scss";
 
@@ -191,17 +186,7 @@ export const WorkflowSettings = ({ onClose }: WorkflowSettingsProps) => {
 	return (
 		<div className={style.container}>
 			<div className={style.sidebar}>
-				<ToggleButtonGroup
-					color="primary"
-					value={yamlEditor ? "android" : "web"}
-					exclusive
-					onChange={(_, value) => setYamlEditor(value === "android")}
-					aria-label="Platform"
-					fullWidth
-				>
-					<ToggleButton value="web">UI</ToggleButton>
-					<ToggleButton value="android">YAML</ToggleButton>
-				</ToggleButtonGroup>
+				<ToggleButtons yamlEditor={yamlEditor} setYamlEditor={setYamlEditor} />
 				<List>
 					<ListItem disablePadding>
 						<ListItemButton

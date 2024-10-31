@@ -16,6 +16,7 @@ export const NameSetting = ({ value, onChange }: NameSettingProps) => {
 					fontSize: 20,
 				}}
 				onChange={(e) => onChange?.(e.target.value)}
+				className={style.input}
 			/>
 		</div>
 	);

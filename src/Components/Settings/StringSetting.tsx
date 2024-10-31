@@ -51,6 +51,7 @@ export const StringSetting = ({
 			fullWidth
 			label={label}
 			multiline={multiline}
+			className={style.textField}
 			InputProps={{
 				endAdornment: value && (
 					<InputAdornment position="end">
