@@ -29,7 +29,7 @@
 		"menus": {
 			"editor/title": [
 				{
-					"when": "resourceExtname == .yml",
+					"when": "editorLangId == yaml && resourcePath =~ /^.*\\.github\\/workflows\\//",
 					"command": "github-action-editor.editAction",
 					"group": "navigation"
 				}
